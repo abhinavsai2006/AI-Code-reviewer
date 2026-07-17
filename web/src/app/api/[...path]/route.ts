@@ -466,13 +466,7 @@ export async function GET(req: NextRequest, { params }: { params: { path: string
     return NextResponse.json({ id: user.id, name: user.name, email: user.email });
   }
 
-  // Auth Guard
-  const userId = getUserIdFromRequest(req);
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorised access.' }, { status: 401 });
-  }
-
-  // 2. SSE STREAM ROUTER
+  // 2. SSE STREAM ROUTER (Bypasses auth check since EventSource doesn't support custom headers)
   if (path.endsWith('/stream')) {
     const reviewId = path.split('/')[1];
     
@@ -503,6 +497,12 @@ export async function GET(req: NextRequest, { params }: { params: { path: string
         'Connection': 'keep-alive'
       }
     });
+  }
+
+  // Auth Guard
+  const userId = getUserIdFromRequest(req);
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorised access.' }, { status: 401 });
   }
 
   // 3. GET LIST REVIEWS
