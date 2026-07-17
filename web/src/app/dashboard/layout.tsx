@@ -38,6 +38,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const sideNavItems = [
     { label: 'Submit Code', href: '/dashboard/submit', icon: 'add_circle' },
     { label: 'Review History', href: '/dashboard/reviews', icon: 'history' },
+    { label: 'Settings', href: '/dashboard/settings', icon: 'settings' },
   ];
 
   // For review detail pages, the detail page manages its own full-bleed layout

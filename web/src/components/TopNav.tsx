@@ -102,9 +102,9 @@ export default function TopNav() {
                 <span className="material-symbols-outlined text-[20px]">notifications</span>
               </button>
               {/* Settings */}
-              <button className="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 p-1.5 rounded-full hidden md:flex">
+              <Link href="/dashboard/settings" className="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 p-1.5 rounded-full hidden md:flex">
                 <span className="material-symbols-outlined text-[20px]">settings</span>
-              </button>
+              </Link>
 
               {/* Username */}
               <span className="hidden lg:inline text-xs text-on-surface-variant font-mono-code truncate max-w-[120px]">

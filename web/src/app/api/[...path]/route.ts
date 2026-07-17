@@ -457,6 +457,96 @@ export async function POST(req: NextRequest, { params }: { params: { path: strin
 export async function GET(req: NextRequest, { params }: { params: { path: string[] } }) {
   const path = params.path.join('/');
 
+  // Google Login Redirection Route
+  if (path === 'auth/google') {
+    const clientId = process.env.GOOGLE_CLIENT_ID || '';
+    const redirectUri = process.env.GOOGLE_CALLBACK_URL || 'http://localhost:8080/api/auth/google/callback';
+    const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid%20profile%20email&prompt=select_account`;
+    return NextResponse.redirect(googleAuthUrl);
+  }
+
+  // Google Login Callback Route
+  if (path === 'auth/google/callback') {
+    const code = req.nextUrl.searchParams.get('code');
+    if (!code) {
+      return NextResponse.json({ error: 'Code parameter is missing.' }, { status: 400 });
+    }
+
+    try {
+      const clientId = process.env.GOOGLE_CLIENT_ID || '';
+      const clientSecret = process.env.GOOGLE_CLIENT_SECRET || '';
+      const redirectUri = process.env.GOOGLE_CALLBACK_URL || 'http://localhost:8080/api/auth/google/callback';
+
+      // Exchange code for Google tokens
+      const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          code,
+          client_id: clientId,
+          client_secret: clientSecret,
+          redirect_uri: redirectUri,
+          grant_type: 'authorization_code'
+        })
+      });
+
+      const tokenData = await tokenResponse.json();
+      if (!tokenResponse.ok) {
+        return NextResponse.json({ error: tokenData.error_description || 'Token exchange failed.' }, { status: 400 });
+      }
+
+      // Decode the id_token
+      const idToken = tokenData.id_token;
+      const base64Url = idToken.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        Buffer.from(base64, 'base64')
+          .toString()
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      const googleUser = JSON.parse(jsonPayload);
+
+      // Find or create user
+      let user = memoryDb.users.find((u: any) => u.email === googleUser.email);
+      if (!user) {
+        user = {
+          id: crypto.randomUUID(),
+          name: googleUser.name || 'Google User',
+          email: googleUser.email,
+          password_hash: '', // OAuth user, no password
+          created_at: new Date().toISOString()
+        };
+        memoryDb.users.push(user);
+      }
+
+      // Generate JWT Token
+      const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });
+
+      // Return a helper script to save local credentials and redirect browser to workstation
+      const redirectHtml = `
+        <html>
+          <body>
+            <script>
+              localStorage.setItem('token', '${token}');
+              localStorage.setItem('user', JSON.stringify(${JSON.stringify({ id: user.id, name: user.name, email: user.email })}));
+              window.dispatchEvent(new Event('auth-change'));
+              window.location.href = '/dashboard/submit';
+            </script>
+          </body>
+        </html>
+      `;
+      return new Response(redirectHtml, {
+        headers: { 'Content-Type': 'text/html' }
+      });
+
+    } catch (err: any) {
+      console.error('Google callback error:', err);
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    }
+  }
+
   // 1. GET ME
   if (path === 'auth/me') {
     const userId = getUserIdFromRequest(req);
