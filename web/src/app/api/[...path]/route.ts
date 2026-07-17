@@ -21,6 +21,32 @@ const REVIEWS_FILE = path.join(DATA_DIR, 'reviews.json');
 const FINDINGS_FILE = path.join(DATA_DIR, 'findings.json');
 const METRICS_FILE = path.join(DATA_DIR, 'metrics.json');
 
+const getAppOrigin = (req: NextRequest) => {
+  const forwardedHost = req.headers.get('x-forwarded-host');
+  const forwardedProto = req.headers.get('x-forwarded-proto');
+  if (forwardedHost && forwardedProto) {
+    return `${forwardedProto}://${forwardedHost}`;
+  }
+
+  if (req.nextUrl?.origin) {
+    return req.nextUrl.origin;
+  }
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
+  return 'http://localhost:8080';
+};
+
+const getGoogleOAuthConfig = (req: NextRequest) => {
+  const clientId = process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET || '';
+  const redirectUri = process.env.GOOGLE_CALLBACK_URL || `${getAppOrigin(req)}/api/auth/google/callback`;
+
+  return { clientId, clientSecret, redirectUri };
+};
+
 const ensureDirectoryExists = () => {
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -746,8 +772,14 @@ export async function GET(req: NextRequest, { params }: { params: { path: string
 
   // Google Login Redirection Route
   if (path === 'auth/google') {
-    const clientId = process.env.GOOGLE_CLIENT_ID || '';
-    const redirectUri = process.env.GOOGLE_CALLBACK_URL || 'http://localhost:8080/api/auth/google/callback';
+    const { clientId, redirectUri } = getGoogleOAuthConfig(req);
+    if (!clientId) {
+      return NextResponse.json(
+        { error: 'Google OAuth is not configured. Set GOOGLE_CLIENT_ID in the deployment environment.' },
+        { status: 500 }
+      );
+    }
+
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid%20profile%20email&prompt=select_account`;
     return NextResponse.redirect(googleAuthUrl);
   }
@@ -760,9 +792,14 @@ export async function GET(req: NextRequest, { params }: { params: { path: string
     }
 
     try {
-      const clientId = process.env.GOOGLE_CLIENT_ID || '';
-      const clientSecret = process.env.GOOGLE_CLIENT_SECRET || '';
-      const redirectUri = process.env.GOOGLE_CALLBACK_URL || 'http://localhost:8080/api/auth/google/callback';
+      const { clientId, clientSecret, redirectUri } = getGoogleOAuthConfig(req);
+
+      if (!clientId || !clientSecret) {
+        return NextResponse.json(
+          { error: 'Google OAuth is not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in the deployment environment.' },
+          { status: 500 }
+        );
+      }
 
       // Exchange code for Google tokens
       const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
