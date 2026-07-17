@@ -36,7 +36,7 @@ const getAppOrigin = (req: NextRequest) => {
     return `https://${process.env.VERCEL_URL}`;
   }
 
-  return 'http://localhost:8080';
+  return 'http://localhost:8000';
 };
 
 const getGoogleOAuthConfig = (req: NextRequest) => {
@@ -768,7 +768,8 @@ export async function POST(req: NextRequest, { params }: { params: { path: strin
 }
 
 export async function GET(req: NextRequest, { params }: { params: { path: string[] } }) {
-  const path = params.path.join('/');
+  try {
+    const path = params.path.join('/');
 
   // Google Login Redirection Route
   if (path === 'auth/google') {
@@ -989,9 +990,10 @@ export async function GET(req: NextRequest, { params }: { params: { path: string
         complexity: metrics.cyclomatic_complexity || 1
       }
     });
+  } catch (err: any) {
+    console.error('API GET route error:', err);
+    return NextResponse.json({ error: err.message, stack: err.stack }, { status: 500 });
   }
-
-  return NextResponse.json({ error: 'Route not found' }, { status: 404 });
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: { path: string[] } }) {
