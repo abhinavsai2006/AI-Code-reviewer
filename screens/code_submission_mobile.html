@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Submit Code - Lumina.AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error": "#690005",
+                        "secondary": "#5de6ff",
+                        "success": "#10B981",
+                        "error": "#ffb4ab",
+                        "inverse-surface": "#e4e1e9",
+                        "on-secondary-fixed-variant": "#004e5a",
+                        "outline-glass": "rgba(255, 255, 255, 0.08)",
+                        "surface-bright": "#39383e",
+                        "secondary-fixed-dim": "#2fd9f4",
+                        "surface-container-high": "#2a292f",
+                        "on-surface": "#e4e1e9",
+                        "on-tertiary": "#67001b",
+                        "secondary-container": "#00cbe6",
+                        "surface-container": "#111118",
+                        "outline": "#958da1",
+                        "inverse-on-surface": "#303036",
+                        "warning": "#F59E0B",
+                        "on-surface-variant": "#ccc3d8",
+                        "surface-container-low": "#1b1b20",
+                        "outline-variant": "#4a4455",
+                        "on-secondary": "#00363e",
+                        "on-primary-fixed-variant": "#5a00c6",
+                        "critical": "#EF4444",
+                        "tertiary-container": "#c81a42",
+                        "primary-fixed-dim": "#d2bbff",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-highest": "#35343a",
+                        "tertiary-fixed-dim": "#ffb2b7",
+                        "surface-dim": "#131318",
+                        "primary-container": "#7c3aed",
+                        "on-tertiary-fixed": "#40000d",
+                        "on-secondary-fixed": "#001f25",
+                        "surface-variant": "#35343a",
+                        "on-secondary-container": "#00515d",
+                        "on-background": "#e4e1e9",
+                        "background": "#131318",
+                        "tertiary": "#ffb2b7",
+                        "on-tertiary-container": "#ffdedf",
+                        "error-container": "#93000a",
+                        "primary-fixed": "#eaddff",
+                        "surface-container-lowest": "#0e0e13",
+                        "secondary-fixed": "#a2eeff",
+                        "primary": "#d2bbff",
+                        "on-tertiary-fixed-variant": "#92002a",
+                        "on-primary-container": "#ede0ff",
+                        "tertiary-fixed": "#ffdadb",
+                        "surface-tint": "#d2bbff",
+                        "surface": "#131318",
+                        "on-primary": "#3f008e",
+                        "inverse-primary": "#732ee4",
+                        "on-primary-fixed": "#25005a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "unit": "4px",
+                        "md": "16px",
+                        "container-max": "1280px",
+                        "sm": "8px"
+                    },
+                    "fontFamily": {
+                        "mono-code": ["JetBrains Mono"],
+                        "display-hero": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "display-hero-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "mono-code": ["13px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "display-hero": ["64px", { "lineHeight": "1.15", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+                        "body-sm": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-md": ["22px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.25", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "600" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "800" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0F;
+            color: #e4e1e9;
+        }
+        .mesh-bg {
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(124, 58, 237, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(0, 203, 230, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+        .glass-panel {
+            background: rgba(18, 18, 26, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .code-input-bg {
+            background: #0e0e13;
+        }
+        .btn-glow {
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.3);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="mesh-bg min-h-screen flex flex-col font-sans antialiased relative pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-surface-container/65 dark:bg-surface-container/65 backdrop-blur-xl border-b border-outline-glass shadow-2xl fixed top-0 w-full z-50 flex items-center justify-between px-md py-sm">
+<button class="text-primary dark:text-primary active:scale-95 transition-transform hover:bg-white/5 p-xs rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<div class="font-headline-md text-headline-md-mobile font-bold text-primary tracking-tighter">
+            Lumina.AI
+        </div>
+<button class="text-primary dark:text-primary active:scale-95 transition-transform hover:bg-white/5 p-xs rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="account_circle" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+</button>
+</header>
+<main class="flex-grow pt-[72px] px-md md:px-lg w-full max-w-container-max mx-auto flex flex-col gap-lg">
+<!-- Hero Section -->
+<section class="flex flex-col items-center justify-center text-center mt-lg mb-sm">
+<h1 class="font-headline-md text-headline-md text-on-surface mb-xs">Submit Code</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-md">Paste your snippet or upload source files.</p>
+</section>
+<!-- Glassmorphic Submission Container -->
+<section class="glass-panel rounded-xl p-md flex flex-col gap-md">
+<!-- Language Selector -->
+<div class="flex items-center justify-between w-full">
+<div class="flex items-center gap-xs bg-surface-container-high border border-outline-glass rounded-full px-3 py-1">
+<span class="material-symbols-outlined text-secondary text-[16px]" data-icon="code">code</span>
+<span class="font-label-caps text-label-caps text-on-surface">TypeScript</span>
+</div>
+<div class="flex items-center gap-xs text-on-surface-variant cursor-pointer hover:text-on-surface transition-colors">
+<span class="font-body-sm text-body-sm">Auto-detect</span>
+<span class="material-symbols-outlined text-[18px]" data-icon="arrow_drop_down">arrow_drop_down</span>
+</div>
+</div>
+<!-- Code Editor Area -->
+<div class="relative w-full rounded-lg border border-outline-glass code-input-bg focus-within:border-secondary transition-colors overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-8 border-r border-outline-glass/50 bg-surface-container-low/50 flex flex-col items-center py-sm text-outline font-mono-code text-mono-code select-none">
+<span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+</div>
+<textarea class="w-full min-h-[160px] pl-10 pr-sm py-sm bg-transparent border-none text-on-surface font-mono-code text-mono-code focus:ring-0 resize-none outline-none" placeholder="// Paste your code here...
+function analyzeCode(snippet) {
+  // AI processing...
+  return result;
+}"></textarea>
+</div>
+<!-- OR Divider -->
+<div class="flex items-center justify-center gap-sm">
+<div class="h-px bg-outline-glass flex-grow"></div>
+<span class="font-label-caps text-label-caps text-outline">OR</span>
+<div class="h-px bg-outline-glass flex-grow"></div>
+</div>
+<!-- Upload Zone -->
+<div class="border border-dashed border-outline-variant hover:border-secondary/50 rounded-lg p-lg flex flex-col items-center justify-center gap-sm cursor-pointer transition-colors bg-surface-container/30">
+<span class="material-symbols-outlined text-outline text-3xl" data-icon="folder_open">folder_open</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant text-center">Tap to select files<br/><span class="text-outline text-[12px]">(Max 5MB)</span></span>
+</div>
+<!-- Configuration -->
+<div class="flex flex-col gap-sm">
+<label class="flex items-center gap-sm cursor-pointer">
+<input checked="" class="form-checkbox rounded bg-surface-container-lowest border-outline-glass text-primary focus:ring-primary focus:ring-offset-background" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">Enable AI deep-scan</span>
+</label>
+<label class="flex items-center gap-sm cursor-pointer">
+<input class="form-checkbox rounded bg-surface-container-lowest border-outline-glass text-primary focus:ring-primary focus:ring-offset-background" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Strict static rules</span>
+</label>
+</div>
+<!-- Actions -->
+<div class="flex flex-col gap-sm mt-sm">
+<button class="w-full bg-gradient-to-r from-primary-container to-primary text-on-primary-container font-headline-md text-[18px] py-3 rounded-lg btn-glow hover:opacity-90 active:scale-[0.98] transition-all font-bold">
+                    Run Code Review
+                </button>
+<button class="w-full bg-transparent border border-outline-glass text-on-surface-variant font-body-lg text-body-lg py-2 rounded-lg hover:bg-white/5 active:scale-[0.98] transition-all">
+                    Clear
+                </button>
+</div>
+</section>
+<!-- Information Section -->
+<section class="flex flex-col md:flex-row gap-md mb-xl">
+<!-- Security First -->
+<div class="glass-panel rounded-xl p-md flex-1 flex items-start gap-md">
+<div class="bg-success/10 p-2 rounded-lg flex-shrink-0">
+<span class="material-symbols-outlined text-success" data-icon="lock">lock</span>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-bold text-on-surface mb-xs">Security First</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Your code is analyzed in a secure, ephemeral container and never stored persistently without consent.</p>
+</div>
+</div>
+<!-- Supported Engines -->
+<div class="glass-panel rounded-xl p-md flex-1 flex flex-col gap-sm">
+<h3 class="font-body-lg text-body-lg font-bold text-on-surface flex items-center gap-xs">
+<span class="material-symbols-outlined text-outline text-[18px]" data-icon="memory">memory</span>
+                     Supported Engines
+                 </h3>
+<div class="flex flex-wrap gap-xs">
+<span class="bg-surface-container-high border border-outline-glass px-2 py-1 rounded text-on-surface-variant font-mono-code text-[11px]">ESLint</span>
+<span class="bg-surface-container-high border border-outline-glass px-2 py-1 rounded text-on-surface-variant font-mono-code text-[11px]">Pylint</span>
+<span class="bg-surface-container-high border border-outline-glass px-2 py-1 rounded text-on-surface-variant font-mono-code text-[11px]">SonarQube</span>
+<span class="bg-surface-container-high border border-outline-glass px-2 py-1 rounded text-on-surface-variant font-mono-code text-[11px]">Rustfmt</span>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface-container-low/80 dark:bg-surface-container-low/80 backdrop-blur-2xl border-t border-outline-glass shadow-[0_-10px_30px_rgba(0,0,0,0.5)] fixed bottom-0 left-0 w-full flex justify-around items-center px-sm py-xs z-50">
+<!-- Review (Active Intent) -->
+<a class="flex flex-col items-center justify-center text-secondary bg-secondary/10 rounded-xl px-3 py-1 font-label-caps text-label-caps active:scale-90 transition-all" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="code_blocks" style="font-variation-settings: 'FILL' 1;">code_blocks</span>
+            Review
+        </a>
+<!-- Dashboard -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-60 hover:text-secondary hover:opacity-100 font-label-caps text-label-caps active:scale-90 transition-all" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="dashboard">dashboard</span>
+            Dashboard
+        </a>
+<!-- Analysis -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-60 hover:text-secondary hover:opacity-100 font-label-caps text-label-caps active:scale-90 transition-all" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="analytics">analytics</span>
+            Analysis
+        </a>
+<!-- Settings -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-60 hover:text-secondary hover:opacity-100 font-label-caps text-label-caps active:scale-90 transition-all" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="settings">settings</span>
+            Settings
+        </a>
+</nav>
+<!-- Desktop Sidebar/Drawer placeholder (Hidden on mobile) -->
+<aside class="hidden md:flex flex-col h-full w-80 rounded-r-xl bg-surface-container-high dark:bg-surface-container-high border-r border-outline-glass shadow-2xl p-md fixed left-0 top-[72px] bottom-0 z-40">
+<!-- Drawer content mapped from JSON but hidden on mobile view per task description -->
+<div class="flex items-center gap-sm mb-lg border-b border-outline-glass pb-md">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A futuristic, high-contrast digital avatar for a Lead Architect. The portrait features a stylized, neon-lit face rendered in deep purples and electric cyans against a pure black void. The mood is highly technical and professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaQc10Sj6a9wI6OzctJ3m1KfQ9pn0gCSWEVFEUR9k7DIlXt-6sXoJN7xn2G5Vd9T4_oK20Zz-k01h8Nb1B6_kxs3kdeYMY6gyA_NlrkeOespygmDVZ9Y15zWZEJEOi8l_7_V_vPgiAz8tun_0PzMaZgLJbhncfEoElWa3EGX3wesDU2ZlNBHwC9HmREVGojNeVEUe5cEzTeuoO_c1y58rWc48eYc3tyqChYUl2ka05FmTiJCeU-1w0iw3SHA2-8UuEtIt3yBE021g"/>
+</div>
+<div>
+<h2 class="font-body-lg text-body-lg text-primary font-bold">Lead Architect</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">lumina-dev-01</p>
+</div>
+</div>
+<nav class="flex flex-col gap-xs flex-grow">
+<!-- Active Tab Intent -->
+<a class="flex items-center gap-sm px-3 py-2 bg-primary-container text-on-primary-container font-bold rounded-lg cursor-pointer active:opacity-80 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="assignment_turned_in">assignment_turned_in</span>
+                Active Reviews
+             </a>
+<a class="flex items-center gap-sm px-3 py-2 text-on-surface-variant hover:bg-outline-glass font-body-lg text-body-lg rounded-lg cursor-pointer active:opacity-80 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="source">source</span>
+                Code Repository
+             </a>
+<a class="flex items-center gap-sm px-3 py-2 text-on-surface-variant hover:bg-outline-glass font-body-lg text-body-lg rounded-lg cursor-pointer active:opacity-80 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+                Team Collaboration
+             </a>
+<a class="flex items-center gap-sm px-3 py-2 text-on-surface-variant hover:bg-outline-glass font-body-lg text-body-lg rounded-lg cursor-pointer active:opacity-80 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="security">security</span>
+                Security Audit
+             </a>
+<a class="flex items-center gap-sm px-3 py-2 text-on-surface-variant hover:bg-outline-glass font-body-lg text-body-lg rounded-lg cursor-pointer active:opacity-80 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="database">database</span>
+                System Health
+             </a>
+</nav>
+<div class="mt-auto pt-md border-t border-outline-glass text-center font-mono-code text-[11px] text-outline">
+             v2.4.0-stable
+         </div>
+</aside>
+</body></html>

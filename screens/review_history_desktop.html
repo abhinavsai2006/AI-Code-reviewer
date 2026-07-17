@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DevReview.ai - Review History</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#00515d",
+                        "tertiary": "#ffb2b7",
+                        "secondary-fixed-dim": "#2fd9f4",
+                        "on-secondary-fixed": "#001f25",
+                        "tertiary-fixed": "#ffdadb",
+                        "surface-dim": "#131318",
+                        "warning": "#F59E0B",
+                        "surface-container": "#1f1f25",
+                        "success": "#10B981",
+                        "on-surface-variant": "#ccc3d8",
+                        "error-container": "#93000a",
+                        "surface-container-low": "#1b1b20",
+                        "tertiary-container": "#c81a42",
+                        "on-error-container": "#ffdad6",
+                        "outline-glass": "rgba(255, 255, 255, 0.08)",
+                        "on-tertiary-fixed": "#40000d",
+                        "surface-container-highest": "#35343a",
+                        "on-primary": "#3f008e",
+                        "on-surface": "#e4e1e9",
+                        "on-error": "#690005",
+                        "surface-container-high": "#2a292f",
+                        "on-tertiary-container": "#ffdedf",
+                        "surface-bright": "#39383e",
+                        "surface-variant": "#35343a",
+                        "primary-fixed": "#eaddff",
+                        "on-tertiary": "#67001b",
+                        "critical": "#EF4444",
+                        "on-tertiary-fixed-variant": "#92002a",
+                        "secondary-fixed": "#a2eeff",
+                        "inverse-surface": "#e4e1e9",
+                        "outline-variant": "#4a4455",
+                        "surface-container-lowest": "#0e0e13",
+                        "surface": "#131318",
+                        "outline": "#958da1",
+                        "on-primary-fixed": "#25005a",
+                        "primary-container": "#7c3aed",
+                        "tertiary-fixed-dim": "#ffb2b7",
+                        "error": "#ffb4ab",
+                        "primary-fixed-dim": "#d2bbff",
+                        "inverse-primary": "#732ee4",
+                        "on-secondary-fixed-variant": "#004e5a",
+                        "on-primary-fixed-variant": "#5a00c6",
+                        "secondary-container": "#00cbe6",
+                        "surface-tint": "#d2bbff",
+                        "background": "#131318",
+                        "on-primary-container": "#ede0ff",
+                        "on-secondary": "#00363e",
+                        "secondary": "#5de6ff",
+                        "inverse-on-surface": "#303036",
+                        "on-background": "#e4e1e9",
+                        "primary": "#d2bbff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "unit": "4px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "mono-code": ["JetBrains Mono"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-hero": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "display-hero-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "mono-code": ["13px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "headline-md": ["22px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.25", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-hero": ["64px", { "lineHeight": "1.15", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+                        "body-sm": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "600" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "800" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom Styles for atmospheric depth and glassmorphism */
+        body {
+            background-color: #0A0A0F;
+            color: #e4e1e9;
+            overflow-x: hidden;
+        }
+
+        .ambient-glow {
+            position: fixed;
+            top: 0;
+            left: -10vw;
+            width: 40vw;
+            height: 100vh;
+            background: radial-gradient(ellipse at left, rgba(124, 58, 237, 0.15) 0%, rgba(93, 230, 255, 0.05) 50%, transparent 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .glass-panel {
+            background: rgba(18, 18, 26, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .glass-input {
+            background-color: #0e0e13;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: border-color 0.2s ease;
+        }
+        
+        .glass-input:focus {
+            outline: none;
+            border-color: #5de6ff;
+            box-shadow: 0 0 0 1px rgba(93, 230, 255, 0.3);
+        }
+
+        .btn-primary {
+            background-color: #7c3aed;
+            color: white;
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.3);
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .severity-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .severity-critical { background: rgba(239, 68, 68, 0.1); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .severity-warning { background: rgba(245, 158, 11, 0.1); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.2); }
+        .severity-info { background: rgba(93, 230, 255, 0.1); color: #5de6ff; border: 1px solid rgba(93, 230, 255, 0.2); }
+
+        .score-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            background: rgba(18, 18, 26, 0.8);
+        }
+
+        .score-good { border: 1px solid #10B981; color: #10B981; }
+        .score-bad { border: 1px solid #EF4444; color: #EF4444; }
+
+        /* Custom Scrollbar for the table */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0A0A0F;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a4455;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #958da1;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col font-body-sm text-body-sm">
+<!-- Ambient Background Glow -->
+<div class="ambient-glow"></div>
+<!-- TopNavBar (Shared Component) -->
+<nav class="bg-surface/65 backdrop-blur-xl fixed top-0 w-full z-50 border-b border-outline-glass shadow-2xl shadow-background/40">
+<div class="flex justify-between items-center max-w-container-max mx-auto px-lg h-16">
+<!-- Brand -->
+<div class="flex items-center gap-md">
+<a class="font-headline-md text-headline-md font-extrabold text-primary tracking-tighter" href="#">DevReview.ai</a>
+</div>
+<!-- Navigation Links -->
+<div class="hidden md:flex gap-lg items-center h-full font-body-lg text-body-lg">
+<a class="text-on-surface-variant font-medium hover:text-secondary transition-colors duration-200 active:scale-95 transition-transform flex items-center h-full" href="#">Dashboard</a>
+<a class="text-on-surface-variant font-medium hover:text-secondary transition-colors duration-200 active:scale-95 transition-transform flex items-center h-full" href="#">Submit Code</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1 hover:text-secondary transition-colors duration-200 active:scale-95 transition-transform flex items-center h-full mt-1" href="#">History</a>
+<a class="text-on-surface-variant font-medium hover:text-secondary transition-colors duration-200 active:scale-95 transition-transform flex items-center h-full" href="#">Docs</a>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-md">
+<!-- Search Bar (Right aligned as per JSON) -->
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="glass-input text-on-surface text-sm rounded-full pl-9 pr-4 py-1.5 w-48 focus:w-64 transition-all duration-300" placeholder="Quick search..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:text-secondary transition-colors duration-200 p-2 rounded-full hover:bg-white/5 active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-secondary transition-colors duration-200 p-2 rounded-full hover:bg-white/5 active:scale-95">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<!-- Profile Image -->
+<button class="ml-2 rounded-full overflow-hidden border border-outline-glass hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary w-8 h-8 flex-shrink-0 active:scale-95">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzL4jfXQtrLw2NyNltEGwRFU9htMd9_l9cd-Zlkx-wafLLlbJkgeKGwRmJL4jM7sokgerzRIsMQGWWr6_5crU9zNcHINy6Dnsj1EXl1qhS_2gJugyymos-PXj0E6GS_q0E_F65tX_1AkJIEIrCohJxo-HkdxUntw0tkcd7nJ2XKIPPjmYi8akIBL9ztffESIru8pkSnudiINfl9wv-MzAuYP9ppMATaXynDYnqTNIRvrm0HcO3D6w9B-Ueb4WBNuqkyY37F3v_FhU"/>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow pt-24 pb-12 px-md sm:px-lg max-w-container-max mx-auto w-full z-10">
+<!-- Header Section -->
+<header class="mb-8">
+<h1 class="font-headline-lg text-headline-lg text-white mb-2">Review History</h1>
+<p class="text-on-surface-variant text-body-lg">Track and search all previous automated and AI code audits. Click any file to view details.</p>
+</header>
+<!-- Search & Filter Row -->
+<div class="glass-panel rounded-xl p-sm mb-lg flex flex-col md:flex-row gap-sm items-center justify-between">
+<div class="relative w-full md:w-96 flex-shrink-0">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="glass-input w-full text-on-surface rounded-lg pl-10 pr-4 py-2 text-sm w-full" placeholder="Search by file name or keywords..." type="text"/>
+</div>
+<div class="flex flex-wrap md:flex-nowrap gap-sm w-full md:w-auto items-center">
+<div class="relative w-full sm:w-auto">
+<select class="glass-input text-on-surface rounded-lg pl-4 pr-10 py-2 text-sm appearance-none w-full sm:w-40 cursor-pointer">
+<option value="all">Language (All)</option>
+<option value="ts">TypeScript (TS)</option>
+<option value="py">Python (PY)</option>
+<option value="go">Go (GO)</option>
+<option value="rs">Rust (RS)</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-sm">arrow_drop_down</span>
+</div>
+<div class="relative w-full sm:w-auto">
+<select class="glass-input text-on-surface rounded-lg pl-4 pr-10 py-2 text-sm appearance-none w-full sm:w-40 cursor-pointer">
+<option value="all">Score (All)</option>
+<option value="80">80+</option>
+<option value="50">50-79</option>
+<option value="0">&lt;50</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-sm">arrow_drop_down</span>
+</div>
+<button class="px-4 py-2 rounded-lg text-on-surface-variant hover:text-white hover:bg-white/5 border border-outline-glass transition-colors text-sm font-medium w-full sm:w-auto active:scale-95 whitespace-nowrap">
+                    Reset Filters
+                </button>
+</div>
+</div>
+<!-- History Table -->
+<div class="glass-panel rounded-xl overflow-hidden mb-6">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-glass bg-surface-container-low/50">
+<th class="py-4 px-6 font-label-caps text-label-caps text-on-surface-variant uppercase">File Name</th>
+<th class="py-4 px-6 font-label-caps text-label-caps text-on-surface-variant uppercase">Language</th>
+<th class="py-4 px-6 font-label-caps text-label-caps text-on-surface-variant uppercase">Analysis Date</th>
+<th class="py-4 px-6 font-label-caps text-label-caps text-on-surface-variant uppercase">Findings</th>
+<th class="py-4 px-6 font-label-caps text-label-caps text-on-surface-variant uppercase text-center">Score</th>
+<th class="py-4 px-6 font-label-caps text-label-caps text-on-surface-variant uppercase text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-glass">
+<!-- Row 1: TS -->
+<tr class="hover:bg-white/[0.02] transition-colors group cursor-pointer">
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-[#3178C6]/10 flex items-center justify-center border border-[#3178C6]/20">
+<span class="material-symbols-outlined text-[#3178C6] text-sm">data_object</span>
+</div>
+<span class="font-mono-code text-mono-code text-white">PaymentProcessor.ts</span>
+</div>
+</td>
+<td class="py-4 px-6 text-on-surface-variant">TypeScript</td>
+<td class="py-4 px-6 font-mono-code text-mono-code text-on-surface-variant">2026-07-16 14:32</td>
+<td class="py-4 px-6">
+<div class="flex flex-wrap gap-2">
+<span class="severity-badge severity-critical"><span class="material-symbols-outlined text-[14px]">error</span> 1</span>
+<span class="severity-badge severity-warning"><span class="material-symbols-outlined text-[14px]">warning</span> 2</span>
+<span class="severity-badge severity-info"><span class="material-symbols-outlined text-[14px]">info</span> 1</span>
+</div>
+</td>
+<td class="py-4 px-6 text-center">
+<span class="score-pill score-good">82%</span>
+</td>
+<td class="py-4 px-6 text-right">
+<button class="btn-primary px-3 py-1.5 rounded-lg text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100">
+                                    View Details
+                                </button>
+</td>
+</tr>
+<!-- Row 2: Python -->
+<tr class="hover:bg-white/[0.02] transition-colors group cursor-pointer">
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-[#3776AB]/10 flex items-center justify-center border border-[#3776AB]/20">
+<span class="material-symbols-outlined text-[#3776AB] text-sm">terminal</span>
+</div>
+<span class="font-mono-code text-mono-code text-white">auth_helper.py</span>
+</div>
+</td>
+<td class="py-4 px-6 text-on-surface-variant">Python</td>
+<td class="py-4 px-6 font-mono-code text-mono-code text-on-surface-variant">2026-07-15 09:12</td>
+<td class="py-4 px-6">
+<div class="flex flex-wrap gap-2">
+<span class="severity-badge severity-warning"><span class="material-symbols-outlined text-[14px]">warning</span> 1</span>
+<span class="severity-badge severity-info"><span class="material-symbols-outlined text-[14px]">info</span> 1</span>
+</div>
+</td>
+<td class="py-4 px-6 text-center">
+<span class="score-pill score-good">94%</span>
+</td>
+<td class="py-4 px-6 text-right">
+<button class="btn-primary px-3 py-1.5 rounded-lg text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100">
+                                    View Details
+                                </button>
+</td>
+</tr>
+<!-- Row 3: Go -->
+<tr class="hover:bg-white/[0.02] transition-colors group cursor-pointer">
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-[#00ADD8]/10 flex items-center justify-center border border-[#00ADD8]/20">
+<span class="material-symbols-outlined text-[#00ADD8] text-sm">integration_instructions</span>
+</div>
+<span class="font-mono-code text-mono-code text-white">db_pool.go</span>
+</div>
+</td>
+<td class="py-4 px-6 text-on-surface-variant">Go</td>
+<td class="py-4 px-6 font-mono-code text-mono-code text-on-surface-variant">2026-07-10 18:45</td>
+<td class="py-4 px-6">
+<div class="flex flex-wrap gap-2">
+<span class="severity-badge severity-critical"><span class="material-symbols-outlined text-[14px]">error</span> 2</span>
+<span class="severity-badge severity-warning"><span class="material-symbols-outlined text-[14px]">warning</span> 1</span>
+</div>
+</td>
+<td class="py-4 px-6 text-center">
+<span class="score-pill score-bad">45%</span>
+</td>
+<td class="py-4 px-6 text-right">
+<button class="btn-primary px-3 py-1.5 rounded-lg text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100">
+                                    View Details
+                                </button>
+</td>
+</tr>
+<!-- Row 4: Rust -->
+<tr class="hover:bg-white/[0.02] transition-colors group cursor-pointer">
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-[#DEA584]/10 flex items-center justify-center border border-[#DEA584]/20">
+<span class="material-symbols-outlined text-[#DEA584] text-sm">settings_applications</span>
+</div>
+<span class="font-mono-code text-mono-code text-white">string_utils.rs</span>
+</div>
+</td>
+<td class="py-4 px-6 text-on-surface-variant">Rust</td>
+<td class="py-4 px-6 font-mono-code text-mono-code text-on-surface-variant">2026-07-05 11:20</td>
+<td class="py-4 px-6">
+<div class="flex flex-wrap gap-2">
+<span class="severity-badge severity-info"><span class="material-symbols-outlined text-[14px]">info</span> 3</span>
+</div>
+</td>
+<td class="py-4 px-6 text-center">
+<span class="score-pill score-good">98%</span>
+</td>
+<td class="py-4 px-6 text-right">
+<button class="btn-primary px-3 py-1.5 rounded-lg text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100">
+                                    View Details
+                                </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Pagination -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+<div class="text-on-surface-variant text-sm">
+                Showing <span class="text-white font-medium">1-4</span> of <span class="text-white font-medium">24</span> reviews
+            </div>
+<div class="flex items-center gap-1">
+<button class="px-3 py-1.5 rounded-md text-on-surface-variant hover:text-white hover:bg-white/5 border border-transparent hover:border-outline-glass transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed" disabled="">
+                    Previous
+                </button>
+<div class="flex items-center gap-1 px-2">
+<button class="w-8 h-8 rounded-md flex items-center justify-center text-sm font-medium bg-primary-container/20 text-primary border border-primary/30">1</button>
+<button class="w-8 h-8 rounded-md flex items-center justify-center text-sm text-on-surface-variant hover:bg-white/5 hover:text-white transition-colors border border-transparent">2</button>
+<button class="w-8 h-8 rounded-md flex items-center justify-center text-sm text-on-surface-variant hover:bg-white/5 hover:text-white transition-colors border border-transparent">3</button>
+<span class="text-on-surface-variant px-1">...</span>
+<button class="w-8 h-8 rounded-md flex items-center justify-center text-sm text-on-surface-variant hover:bg-white/5 hover:text-white transition-colors border border-transparent">6</button>
+</div>
+<button class="px-3 py-1.5 rounded-md text-on-surface-variant hover:text-white hover:bg-white/5 border border-transparent hover:border-outline-glass transition-all text-sm">
+                    Next
+                </button>
+</div>
+</div>
+</main>
+<script>
+        // Simple row interaction highlight (visual feedback only)
+        document.querySelectorAll('tbody tr').forEach(row => {
+            row.addEventListener('click', () => {
+                // In a real app, this would navigate to the details page
+                const fileName = row.querySelector('.font-mono-code').textContent;
+                console.log(`Navigating to details for: ${fileName}`);
+                
+                // Add a brief pulse effect
+                row.classList.add('bg-white/10');
+                setTimeout(() => {
+                    row.classList.remove('bg-white/10');
+                }, 150);
+            });
+        });
+    </script>
+</body></html>

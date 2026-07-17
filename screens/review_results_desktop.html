@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DevReview.ai - Review Results</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "warning": "#F59E0B",
+                        "error-container": "#93000a",
+                        "primary": "#d2bbff",
+                        "on-secondary-container": "#00515d",
+                        "on-surface-variant": "#ccc3d8",
+                        "tertiary-container": "#c81a42",
+                        "secondary": "#5de6ff",
+                        "surface-container": "#111118",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#3f008e",
+                        "critical": "#EF4444",
+                        "surface-variant": "#35343a",
+                        "on-background": "#e4e1e9",
+                        "tertiary": "#ffb2b7",
+                        "on-tertiary-fixed": "#40000d",
+                        "on-secondary": "#00363e",
+                        "on-secondary-fixed": "#001f25",
+                        "surface-container-low": "#1b1b20",
+                        "on-primary-fixed": "#25005a",
+                        "on-tertiary-container": "#ffdedf",
+                        "surface-container-highest": "#35343a",
+                        "error": "#ffb4ab",
+                        "on-tertiary": "#67001b",
+                        "surface-container-high": "#2a292f",
+                        "surface-bright": "#12121A",
+                        "on-error-container": "#ffdad6",
+                        "surface-dim": "#131318",
+                        "outline-glass": "rgba(255, 255, 255, 0.08)",
+                        "outline-variant": "#4a4455",
+                        "on-tertiary-fixed-variant": "#92002a",
+                        "inverse-surface": "#e4e1e9",
+                        "surface": "#131318",
+                        "secondary-fixed": "#a2eeff",
+                        "on-surface": "#e4e1e9",
+                        "primary-fixed-dim": "#d2bbff",
+                        "on-primary-container": "#ede0ff",
+                        "tertiary-fixed": "#ffdadb",
+                        "secondary-container": "#00cbe6",
+                        "on-secondary-fixed-variant": "#004e5a",
+                        "on-error": "#690005",
+                        "tertiary-fixed-dim": "#ffb2b7",
+                        "primary-fixed": "#eaddff",
+                        "surface-container-lowest": "#0e0e13",
+                        "success": "#10B981",
+                        "surface-tint": "#d2bbff",
+                        "on-primary-fixed-variant": "#5a00c6",
+                        "inverse-primary": "#732ee4",
+                        "secondary-fixed-dim": "#2fd9f4",
+                        "outline": "#958da1",
+                        "inverse-on-surface": "#303036",
+                        "background": "#131318"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "md": "16px",
+                        "unit": "4px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "container-max": "1280px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "mono-code": ["JetBrains Mono"],
+                        "display-hero-mobile": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "display-hero": ["Inter"]
+                    },
+                    "fontSize": {
+                        "mono-code": ["13px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "body-sm": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "headline-md": ["22px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.25", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "display-hero": ["64px", { "lineHeight": "1.15", "letterSpacing": "-0.03em", "fontWeight": "800" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0F;
+            color: #e4e1e9;
+        }
+        .mesh-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(124, 58, 237, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(93, 230, 255, 0.03) 0%, transparent 50%);
+            animation: pulse-mesh 10s ease-in-out infinite alternate;
+        }
+        @keyframes pulse-mesh {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.05); opacity: 1; }
+        }
+        .glass-card {
+            background: rgba(18, 18, 26, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .glass-panel {
+            background: rgba(17, 17, 24, 0.85); /* surface-container */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .code-line-critical {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-left: 2px solid #EF4444;
+        }
+        .code-line-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            border-left: 2px solid #F59E0B;
+        }
+        .mini-glass {
+            background: rgba(18, 18, 26, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+        
+        /* Gauge Animation */
+        .gauge-circle {
+            stroke-dasharray: 283; /* 2 * pi * r (45) = 282.7 */
+            stroke-dashoffset: 283;
+            transition: stroke-dashoffset 1s ease-out;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col font-body-sm text-body-sm">
+<div class="mesh-gradient"></div>
+<!-- TopNavBar (Shared Component) -->
+<nav class="bg-surface-container/65 dark:bg-surface-container/65 backdrop-blur-xl docked full-width top-0 border-b border-outline-glass shadow-lg flex justify-between items-center w-full px-lg h-16 sticky z-50">
+<div class="flex items-center gap-6">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary">DevReview.ai</span>
+<div class="hidden md:flex gap-4">
+<a class="text-on-surface-variant font-medium hover:text-secondary transition-colors duration-200" href="#">Repositories</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1 hover:text-secondary transition-colors duration-200" href="#">Review Queue</a>
+<a class="text-on-surface-variant font-medium hover:text-secondary transition-colors duration-200" href="#">Analytics</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex items-center bg-surface-container-lowest border border-outline-glass rounded-full px-3 py-1.5 focus-within:border-secondary transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-on-surface text-sm w-48 placeholder-on-surface-variant" placeholder="Search..." type="text"/>
+</div>
+<button class="hidden lg:block border border-outline-glass text-on-surface px-4 py-1.5 rounded-lg font-medium hover:bg-white/5 transition-colors active:scale-95">Compare Changes</button>
+<button class="bg-primary-container text-white px-4 py-1.5 rounded-lg font-medium hover:bg-primary-container/90 transition-colors shadow-[0_0_15px_rgba(124,58,237,0.3)] active:scale-95">Submit Review</button>
+<button class="text-on-surface-variant hover:text-on-surface active:scale-95 transition-transform"><span class="material-symbols-outlined">notifications</span></button>
+<button class="text-on-surface-variant hover:text-on-surface active:scale-95 transition-transform"><span class="material-symbols-outlined">settings</span></button>
+<img alt="User profile" class="w-8 h-8 rounded-full border border-outline-glass object-cover" data-alt="A small, stylized digital avatar of a software developer with futuristic cyber-punk goggles and purple glowing accents, set against a dark grey background. High resolution, 8k, highly detailed profile picture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFoD0LgUVOX2BGEt3LbeWbSp1GR_1t1SzREGmygu8jEzpvHHnVICKEjDolZfG_J88USqOE_RhHn4aG_wMMd2oasXQtJNkN-g2rrWyWguZfz9RDVIzJUBkGyEdNp3ooBWh_LcDC6PcIfT0tBrg6ihBknwhFX4PyrGFPm2kH57dwAVkeota-VcIDJHNxwNXp_nRh7UAtcCSGpsp68YP0wjcXx3odg58iVlNoIBGF859R5Bf3apUYOvauyTlR5iIrakXFnmc96olr05w"/>
+</div>
+</nav>
+<!-- Main Workspace Layout -->
+<div class="flex flex-1 overflow-hidden">
+<!-- SideNavBar (Shared Component) -->
+<aside class="bg-surface-container-low/65 dark:bg-surface-container-low/65 backdrop-blur-xl docked left-0 h-full w-64 border-r border-outline-glass flex flex-col h-screen py-md hidden lg:flex z-40">
+<div class="px-md pb-md mb-md border-b border-outline-glass">
+<div class="flex items-center gap-3 mb-2">
+<img alt="Project Logo" class="w-10 h-10 rounded-lg border border-outline-glass object-cover" data-alt="A sleek, minimalist vector logo icon resembling an abstract letter A made of glowing cyan and violet lines on a dark obsidian background. Clean tech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBk3VvYkWecIlntN8eGt5QN9d-DxTJskVU0l0Pcp2yoJf6WFcTHZbl2ltf5KoWTg6QwYCi93azvCkYFhz6mzzHx1SvPMmFvpMuwIAPvpJTirMMWattI9MZLYC9MvctcCu8ek7Znoxj5jphAaopnWAmPoOgZKtRF9UJMK8GvszvjxgY17pMuZ8MVj6keD0TT3-TRA8-xOVktO3GbGOmIRJ7tFJiV3KdfsB4XdczZwsE99H-c9TKfxV4flBUZumsAPdh7gbJaM-WfklY"/>
+<div>
+<h2 class="font-body-sm text-body-sm font-semibold text-on-surface">Project Alpha</h2>
+<p class="font-label-caps text-label-caps text-on-surface-variant mt-1">v2.4.0-stable</p>
+</div>
+</div>
+<button class="w-full mt-4 border border-outline-glass text-on-surface py-1.5 rounded-lg hover:bg-white/5 transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span> New Branch
+                </button>
+</div>
+<nav class="flex-1 px-sm space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-secondary border-r-2 border-secondary bg-secondary/10 rounded-r-none font-body-sm text-body-sm transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">bug_report</span> Issues
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-white/5 hover:text-on-surface rounded-lg font-body-sm text-body-sm transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]">chat_bubble</span> Comments
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-white/5 hover:text-on-surface rounded-lg font-body-sm text-body-sm transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]">history</span> History
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-white/5 hover:text-on-surface rounded-lg font-body-sm text-body-sm transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]">folder_open</span> Files
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-white/5 hover:text-on-surface rounded-lg font-body-sm text-body-sm transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]">tune</span> Settings
+                </a>
+</nav>
+<div class="px-sm mt-auto pt-md border-t border-outline-glass space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-white/5 hover:text-on-surface rounded-lg font-body-sm text-body-sm transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]">menu_book</span> Documentation
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-white/5 hover:text-on-surface rounded-lg font-body-sm text-body-sm transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]">contact_support</span> Support
+                </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-full overflow-hidden relative">
+<!-- Context Header -->
+<header class="px-lg py-md border-b border-outline-glass flex justify-between items-center bg-surface-container-lowest/50 backdrop-blur-sm z-10 shrink-0">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined">folder</span>
+<span>src</span>
+<span>/</span>
+<span>services</span>
+<span>/</span>
+</div>
+<h1 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">description</span>
+                        PaymentProcessor.ts
+                    </h1>
+</div>
+<div class="flex gap-3">
+<button class="border border-outline-glass px-4 py-2 rounded-lg text-on-surface hover:bg-white/5 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">refresh</span> Re-run Review
+                    </button>
+<button class="bg-primary-container text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-container/90 transition-colors shadow-[0_0_15px_rgba(124,58,237,0.3)] flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">share</span> Share Report
+                    </button>
+</div>
+</header>
+<!-- Stats Row -->
+<div class="px-lg py-md grid grid-cols-1 md:grid-cols-3 gap-md z-10 shrink-0">
+<!-- Health Score -->
+<div class="glass-card rounded-xl p-md flex items-center gap-4">
+<div class="relative w-16 h-16 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="rgba(255,255,255,0.1)" stroke-width="6"></circle>
+<circle class="gauge-circle text-success" cx="50" cy="50" fill="none" r="45" stroke="currentColor" stroke-linecap="round" stroke-width="6"></circle>
+</svg>
+<span class="absolute font-headline-md text-headline-md text-on-surface">82<span class="text-sm">%</span></span>
+</div>
+<div>
+<h3 class="font-body-sm text-body-sm text-on-surface-variant mb-1">Code Health</h3>
+<p class="text-xs text-success">Good condition</p>
+</div>
+</div>
+<!-- Issues Summary -->
+<div class="glass-card rounded-xl p-md flex flex-col justify-center">
+<h3 class="font-body-sm text-body-sm text-on-surface-variant mb-3">Found Issues</h3>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<div class="w-2.5 h-2.5 rounded-full bg-critical shadow-[0_0_8px_rgba(239,68,68,0.6)]"></div>
+<span class="text-on-surface font-mono-code text-mono-code">1</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2.5 h-2.5 rounded-full bg-warning shadow-[0_0_8px_rgba(245,158,11,0.6)]"></div>
+<span class="text-on-surface font-mono-code text-mono-code">2</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2.5 h-2.5 rounded-full bg-secondary shadow-[0_0_8px_rgba(93,230,255,0.6)]"></div>
+<span class="text-on-surface font-mono-code text-mono-code">1</span>
+</div>
+</div>
+</div>
+<!-- Metrics -->
+<div class="glass-card rounded-xl p-md flex flex-col justify-center gap-2">
+<h3 class="font-body-sm text-body-sm text-on-surface-variant mb-1">Metrics</h3>
+<div class="flex justify-between items-center text-sm">
+<span class="text-on-surface-variant">Lines of Code</span>
+<span class="text-on-surface font-mono-code text-mono-code">142</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-on-surface-variant">Complexity</span>
+<span class="text-warning font-mono-code text-mono-code flex items-center gap-1">12 <span class="text-xs text-on-surface-variant">(Moderate)</span></span>
+</div>
+</div>
+</div>
+<!-- Split View Area -->
+<div class="flex-1 flex flex-col lg:flex-row overflow-hidden px-lg pb-lg gap-md z-10">
+<!-- Left: Code Editor (60%) -->
+<div class="w-full lg:w-[60%] glass-panel rounded-xl flex flex-col overflow-hidden border border-outline-glass">
+<div class="bg-surface-container-highest px-4 py-2 border-b border-outline-glass flex items-center gap-2 text-xs text-on-surface-variant font-mono-code text-mono-code">
+<span>TypeScript</span>
+<span class="text-outline-variant">|</span>
+<span>UTF-8</span>
+</div>
+<div class="flex-1 overflow-auto bg-[#0d0d12] font-mono-code text-mono-code text-[13px] leading-relaxed select-text py-4">
+<div class="flex group">
+<div class="w-12 text-right pr-4 text-on-surface-variant/50 select-none border-r border-outline-glass mr-4">10</div>
+<div class="text-on-surface whitespace-pre"><span class="text-[#c678dd]">export</span> <span class="text-[#e5c07b]">class</span> <span class="text-[#61afef]">PaymentProcessor</span> {</div>
+</div>
+<div class="flex group">
+<div class="w-12 text-right pr-4 text-on-surface-variant/50 select-none border-r border-outline-glass mr-4">11</div>
+<div class="text-on-surface whitespace-pre"> <span class="text-[#c678dd]">async</span> <span class="text-[#61afef]">processPayment</span>(userId: <span class="text-[#e5c07b]">string</span>, amount: <span class="text-[#e5c07b]">number</span>) {</div>
+</div>
+<!-- Critical Line -->
+<div class="flex group code-line-critical relative">
+<div class="w-12 text-right pr-4 text-critical select-none border-r border-outline-glass mr-4 flex items-center justify-end gap-1">
+<span class="material-symbols-outlined text-[14px]">error</span>
+                                12
+                            </div>
+<div class="text-on-surface whitespace-pre"> <span class="text-[#c678dd]">const</span> query = <span class="text-[#98c379]">`SELECT * FROM users WHERE id = ${userId}`</span>;</div>
+<!-- Inline Comment -->
+<div class="absolute left-16 top-full mt-1 z-20 mini-glass p-3 rounded-lg w-max max-w-[400px]">
+<div class="flex items-start gap-2">
+<div class="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-primary text-[12px]">smart_toy</span>
+</div>
+<div>
+<p class="text-xs text-on-surface font-body-sm"><span class="font-bold text-primary">AI Suggestion:</span> Parameterize SQL query to prevent SQL Injection.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="flex group h-12"> <!-- Spacer for absolute comment -->
+<div class="w-12 text-right pr-4 text-on-surface-variant/50 select-none border-r border-outline-glass mr-4"></div>
+<div></div>
+</div>
+<div class="flex group">
+<div class="w-12 text-right pr-4 text-on-surface-variant/50 select-none border-r border-outline-glass mr-4">13</div>
+<div class="text-on-surface whitespace-pre"> <span class="text-[#c678dd]">const</span> user = <span class="text-[#c678dd]">await</span> db.<span class="text-[#61afef]">execute</span>(query);</div>
+</div>
+<div class="flex group">
+<div class="w-12 text-right pr-4 text-on-surface-variant/50 select-none border-r border-outline-glass mr-4">14</div>
+<div class="text-on-surface whitespace-pre"> </div>
+</div>
+<div class="flex group">
+<div class="w-12 text-right pr-4 text-on-surface-variant/50 select-none border-r border-outline-glass mr-4">15</div>
+<div class="text-on-surface whitespace-pre"> <span class="text-[#c678dd]">if</span> (!user) <span class="text-[#c678dd]">throw new</span> <span class="text-[#e5c07b]">Error</span>(<span class="text-[#98c379]">'User not found'</span>);</div>
+</div>
+<div class="flex group">
+<div class="w-12 text-right pr-4 text-on-surface-variant/50 select-none border-r border-outline-glass mr-4">16</div>
+<div class="text-on-surface whitespace-pre"> </div>
+</div>
+<div class="flex group">
+<div class="w-12 text-right pr-4 text-on-surface-variant/50 select-none border-r border-outline-glass mr-4">17</div>
+<div class="text-on-surface whitespace-pre"> <span class="text-[#5c6370] italic">// Process transaction</span></div>
+</div>
+<!-- Warning Line -->
+<div class="flex group code-line-warning relative">
+<div class="w-12 text-right pr-4 text-warning select-none border-r border-outline-glass mr-4 flex items-center justify-end gap-1">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+                                18
+                            </div>
+<div class="text-on-surface whitespace-pre"> <span class="text-[#c678dd]">const</span> response = <span class="text-[#c678dd]">await</span> paymentGateway.<span class="text-[#61afef]">charge</span>(amount);</div>
+</div>
+<div class="flex group">
+<div class="w-12 text-right pr-4 text-on-surface-variant/50 select-none border-r border-outline-glass mr-4">19</div>
+<div class="text-on-surface whitespace-pre"> </div>
+</div>
+<div class="flex group">
+<div class="w-12 text-right pr-4 text-on-surface-variant/50 select-none border-r border-outline-glass mr-4">20</div>
+<div class="text-on-surface whitespace-pre"> <span class="text-[#c678dd]">return</span> { success: <span class="text-[#d19a66]">true</span> };</div>
+</div>
+<div class="flex group">
+<div class="w-12 text-right pr-4 text-on-surface-variant/50 select-none border-r border-outline-glass mr-4">21</div>
+<div class="text-on-surface whitespace-pre">  }</div>
+</div>
+<div class="flex group">
+<div class="w-12 text-right pr-4 text-on-surface-variant/50 select-none border-r border-outline-glass mr-4">22</div>
+<div class="text-on-surface whitespace-pre">}</div>
+</div>
+</div>
+</div>
+<!-- Right: Findings List (40%) -->
+<div class="w-full lg:w-[40%] flex flex-col gap-4">
+<!-- Filters -->
+<div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+<button class="px-3 py-1 rounded-full bg-white/10 text-on-surface text-sm border border-outline-glass whitespace-nowrap">All (4)</button>
+<button class="px-3 py-1 rounded-full bg-surface-container text-on-surface-variant text-sm border border-outline-glass hover:bg-white/5 transition-colors whitespace-nowrap flex items-center gap-1">
+<div class="w-2 h-2 rounded-full bg-critical"></div> Critical
+                        </button>
+<button class="px-3 py-1 rounded-full bg-surface-container text-on-surface-variant text-sm border border-outline-glass hover:bg-white/5 transition-colors whitespace-nowrap flex items-center gap-1">
+<div class="w-2 h-2 rounded-full bg-warning"></div> Warning
+                        </button>
+<button class="px-3 py-1 rounded-full bg-surface-container text-on-surface-variant text-sm border border-outline-glass hover:bg-white/5 transition-colors whitespace-nowrap flex items-center gap-1">
+<div class="w-2 h-2 rounded-full bg-secondary"></div> Info
+                        </button>
+</div>
+<!-- Findings Scroll Area -->
+<div class="flex-1 overflow-y-auto pr-2 space-y-4">
+<!-- Expanded Card (Critical) -->
+<div class="glass-panel rounded-xl p-4 border border-outline-glass relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-critical"></div>
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-critical/10 text-critical text-xs font-semibold">
+<span class="material-symbols-outlined text-[14px]">error</span> Critical
+                                    </span>
+<span class="text-xs text-on-surface-variant font-mono-code text-mono-code">Line 12</span>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">more_vert</span></button>
+</div>
+<h4 class="font-body-sm text-body-sm font-semibold text-on-surface mb-2">SQL Injection Risk in query string</h4>
+<p class="text-sm text-on-surface-variant mb-4 leading-relaxed">Direct string interpolation in SQL queries exposes the application to SQL injection attacks. Use parameterized queries instead.</p>
+<!-- Diff Block -->
+<div class="rounded-lg overflow-hidden border border-outline-glass font-mono-code text-mono-code text-[12px] bg-[#0d0d12]">
+<div class="bg-critical/20 px-3 py-1.5 flex gap-3 text-[#e4e1e9]">
+<span class="text-critical select-none">-</span>
+<span>const query = `SELECT * FROM users WHERE id = ${userId}`;</span>
+</div>
+<div class="bg-success/20 px-3 py-1.5 flex gap-3 text-[#e4e1e9]">
+<span class="text-success select-none">+</span>
+<span>const query = 'SELECT * FROM users WHERE id = ?';</span>
+</div>
+</div>
+<div class="mt-4 flex gap-2">
+<button class="px-3 py-1.5 bg-surface-container-highest text-on-surface rounded text-sm hover:bg-white/10 transition-colors">Ignore</button>
+<button class="px-3 py-1.5 bg-primary/20 text-primary border border-primary/30 rounded text-sm hover:bg-primary/30 transition-colors">Apply Fix</button>
+</div>
+</div>
+<!-- Collapsed Card (Warning) -->
+<div class="glass-panel rounded-xl p-4 border border-outline-glass relative hover:bg-white/5 transition-colors cursor-pointer">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-warning"></div>
+<div class="flex justify-between items-center">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-warning/10 text-warning text-xs font-semibold">
+<span class="material-symbols-outlined text-[14px]">warning</span> Warning
+                                        </span>
+<span class="text-xs text-on-surface-variant font-mono-code text-mono-code">Line 18</span>
+</div>
+<h4 class="font-body-sm text-body-sm font-semibold text-on-surface">Unused variable 'response'</h4>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<!-- Collapsed Card (Info) -->
+<div class="glass-panel rounded-xl p-4 border border-outline-glass relative hover:bg-white/5 transition-colors cursor-pointer">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary"></div>
+<div class="flex justify-between items-center">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary/10 text-secondary text-xs font-semibold">
+<span class="material-symbols-outlined text-[14px]">info</span> Info
+                                        </span>
+<span class="text-xs text-on-surface-variant font-mono-code text-mono-code">Line 24</span>
+</div>
+<h4 class="font-body-sm text-body-sm font-semibold text-on-surface">Improve naming clarity</h4>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<script>
+        // Trigger gauge animation on load
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const gauge = document.querySelector('.gauge-circle');
+                if(gauge) {
+                    // 82% of 283 = ~232. stroke-dashoffset = 283 - 232 = 51
+                    gauge.style.strokeDashoffset = '51'; 
+                }
+            }, 300);
+        });
+    </script>
+</body></html>

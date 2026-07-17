@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Review History - AI Reviewer</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface": "#131318",
+                      "secondary": "#5de6ff",
+                      "on-tertiary-container": "#ffdedf",
+                      "on-surface-variant": "#ccc3d8",
+                      "background": "#131318",
+                      "on-primary": "#3f008e",
+                      "inverse-primary": "#732ee4",
+                      "on-error-container": "#ffdad6",
+                      "surface-bright": "#12121A",
+                      "surface-tint": "#d2bbff",
+                      "tertiary-fixed": "#ffdadb",
+                      "surface-container-high": "#2a292f",
+                      "on-secondary": "#00363e",
+                      "outline-variant": "#4a4455",
+                      "tertiary-container": "#c81a42",
+                      "surface-container-highest": "#35343a",
+                      "primary-fixed-dim": "#d2bbff",
+                      "surface-container-lowest": "#0e0e13",
+                      "on-tertiary": "#67001b",
+                      "secondary-container": "#00cbe6",
+                      "surface-container": "#111118",
+                      "success": "#10B981",
+                      "surface-variant": "#35343a",
+                      "primary": "#d2bbff",
+                      "on-tertiary-fixed-variant": "#92002a",
+                      "on-surface": "#e4e1e9",
+                      "tertiary-fixed-dim": "#ffb2b7",
+                      "surface-container-low": "#1b1b20",
+                      "outline": "#958da1",
+                      "on-primary-container": "#ede0ff",
+                      "inverse-on-surface": "#303036",
+                      "error": "#ffb4ab",
+                      "error-container": "#93000a",
+                      "primary-container": "#7c3aed",
+                      "secondary-fixed-dim": "#2fd9f4",
+                      "on-error": "#690005",
+                      "on-tertiary-fixed": "#40000d",
+                      "on-background": "#e4e1e9",
+                      "inverse-surface": "#e4e1e9",
+                      "secondary-fixed": "#a2eeff",
+                      "on-secondary-container": "#00515d",
+                      "critical": "#EF4444",
+                      "on-secondary-fixed-variant": "#004e5a",
+                      "primary-fixed": "#eaddff",
+                      "outline-glass": "rgba(255, 255, 255, 0.08)",
+                      "on-secondary-fixed": "#001f25",
+                      "tertiary": "#ffb2b7",
+                      "warning": "#F59E0B",
+                      "surface-dim": "#131318",
+                      "on-primary-fixed-variant": "#5a00c6",
+                      "on-primary-fixed": "#25005a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "lg": "24px",
+                      "unit": "4px",
+                      "container-max": "1280px",
+                      "sm": "8px",
+                      "xs": "4px",
+                      "md": "16px"
+              },
+              "fontFamily": {
+                      "display-hero-mobile": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "mono-code": [
+                              "JetBrains Mono"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "display-hero": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "display-hero-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.25",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "mono-code": [
+                              "13px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "22px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-hero": [
+                              "64px",
+                              {
+                                      "lineHeight": "1.15",
+                                      "letterSpacing": "-0.03em",
+                                      "fontWeight": "800"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        /* Ambient Mesh Background */
+        .ambient-mesh {
+            background-color: #0A0A0F;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(124, 58, 237, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(93, 230, 255, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* Glassmorphic Card Base */
+        .glass-card {
+            background: rgba(18, 18, 26, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        /* Top Edge Highlight for Elevated Elements */
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            pointer-events: none;
+            border-radius: inherit;
+        }
+
+        /* Score Gauge Radial Progress (Simple CSS implementation for visual rep) */
+        .score-gauge-82 {
+            background: conic-gradient(from 0deg, #10B981 0% 82%, transparent 82% 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .score-gauge-94 {
+            background: conic-gradient(from 0deg, #10B981 0% 94%, transparent 94% 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .score-gauge-45 {
+            background: conic-gradient(from 0deg, #EF4444 0% 45%, transparent 45% 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .score-gauge-inner {
+            background: #131318; /* surface color */
+            border-radius: 50%;
+            width: calc(100% - 4px); /* 2px stroke equivalent */
+            height: calc(100% - 4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+        }
+
+        /* Button Glow */
+        .btn-primary-glow {
+            box-shadow: 0 0 12px 0 rgba(210, 187, 255, 0.3);
+        }
+
+        /* Hide scrollbar for clean UI */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="ambient-mesh text-on-surface min-h-screen font-body-lg flex flex-col pt-16 pb-24 relative overflow-x-hidden no-scrollbar">
+<!-- TopAppBar (from JSON) -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-md h-16 bg-surface/65 dark:bg-surface/65 backdrop-blur-xl border-b border-outline-glass shadow-2xl">
+<button class="text-primary dark:text-primary hover:bg-white/5 transition-colors p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-secondary">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="text-headline-md font-headline-md font-extrabold text-primary tracking-tighter">
+            AI Reviewer
+        </div>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-glass">
+<img alt="user profile avatar" class="w-full h-full object-cover" data-alt="A small, stylized profile avatar of a developer in a sleek, dark-themed UI context. High contrast, sharp edges, professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZT64nYxJYGegSM945nbzvLNa1IFTp44ZeTgby-GH392SwXchfFHZlRxZizXxwSUAjyr9oA69VQcgYWKeYsyv9f_QyQWp3BVEA3cpdgeQAR2WL6r5vq1uK3urwjapGl2WjUqEqOcf7wnVC4i28D0xpZSGepWTJQTVu3-Lrr6y9aZesnDho5WY7FXayl7dDLcf9NigSPbtOVzOYGGy_6zhRoZxp2obukETTWKtUat0eF4_PxHRzX0RSSuC93nkpQPBILHuVmCEDmIw"/>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-grow container mx-auto px-4 sm:px-6 md:px-lg max-w-container-max flex flex-col gap-lg z-10 pt-6">
+<!-- Header Section -->
+<section class="flex flex-col items-center justify-center text-center gap-xs">
+<h1 class="text-headline-md font-headline-md font-bold text-on-surface">History</h1>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Your past automated and AI code reviews.</p>
+</section>
+<!-- Search & Filter -->
+<section class="flex gap-2 items-center">
+<div class="relative flex-grow">
+<span class="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-outline text-sm">search</span>
+<input class="w-full bg-surface-container-lowest border border-outline-glass text-on-surface rounded-lg py-2 pl-9 pr-4 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-colors text-body-sm font-body-sm placeholder-outline" placeholder="Search reviews..." type="text"/>
+</div>
+<button class="glass-card p-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors border border-outline-glass focus:outline-none focus:ring-2 focus:ring-secondary">
+<span class="material-symbols-outlined">tune</span>
+</button>
+</section>
+<!-- History List (Cards) -->
+<section class="flex flex-col gap-4">
+<!-- Card 1 -->
+<article class="glass-card rounded-xl p-md flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-mono-code text-mono-code text-on-surface font-medium truncate max-w-[180px]">PaymentProcessor.ts</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-mono-code font-medium bg-secondary/10 text-secondary border border-secondary/20">TypeScript</span>
+</div>
+<span class="text-label-caps font-label-caps text-on-surface-variant">July 16, 2026</span>
+</div>
+<!-- Score Badge -->
+<div class="w-12 h-12 score-gauge-82 shrink-0">
+<div class="score-gauge-inner">
+<span class="text-label-caps font-label-caps font-bold text-success">82%</span>
+</div>
+</div>
+</div>
+<!-- Findings Pills -->
+<div class="flex flex-wrap gap-2">
+<div class="flex items-center gap-1 bg-critical/10 text-critical px-2 py-1 rounded-full text-[11px] font-medium border border-critical/20">
+<span class="material-symbols-outlined text-[14px]">error</span> 1 Critical
+                    </div>
+<div class="flex items-center gap-1 bg-warning/10 text-warning px-2 py-1 rounded-full text-[11px] font-medium border border-warning/20">
+<span class="material-symbols-outlined text-[14px]">warning</span> 2 Warnings
+                    </div>
+<div class="flex items-center gap-1 bg-secondary/10 text-secondary px-2 py-1 rounded-full text-[11px] font-medium border border-secondary/20">
+<span class="material-symbols-outlined text-[14px]">info</span> 1 Info
+                    </div>
+</div>
+<button class="w-full py-2.5 rounded-lg bg-primary-container text-white font-label-caps text-label-caps font-semibold btn-primary-glow hover:bg-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary mt-2">
+                    View Report
+                </button>
+</article>
+<!-- Card 2 -->
+<article class="glass-card rounded-xl p-md flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-mono-code text-mono-code text-on-surface font-medium truncate max-w-[180px]">auth_helper.py</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-mono-code font-medium bg-blue-400/10 text-blue-400 border border-blue-400/20">Python</span>
+</div>
+<span class="text-label-caps font-label-caps text-on-surface-variant">July 15, 2026</span>
+</div>
+<!-- Score Badge -->
+<div class="w-12 h-12 score-gauge-94 shrink-0">
+<div class="score-gauge-inner">
+<span class="text-label-caps font-label-caps font-bold text-success">94%</span>
+</div>
+</div>
+</div>
+<!-- Findings Pills -->
+<div class="flex flex-wrap gap-2">
+<div class="flex items-center gap-1 bg-warning/10 text-warning px-2 py-1 rounded-full text-[11px] font-medium border border-warning/20">
+<span class="material-symbols-outlined text-[14px]">warning</span> 1 Warning
+                    </div>
+<div class="flex items-center gap-1 bg-secondary/10 text-secondary px-2 py-1 rounded-full text-[11px] font-medium border border-secondary/20">
+<span class="material-symbols-outlined text-[14px]">info</span> 1 Info
+                    </div>
+</div>
+<button class="w-full py-2.5 rounded-lg bg-primary-container text-white font-label-caps text-label-caps font-semibold btn-primary-glow hover:bg-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary mt-2">
+                    View Report
+                </button>
+</article>
+<!-- Card 3 -->
+<article class="glass-card rounded-xl p-md flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-mono-code text-mono-code text-on-surface font-medium truncate max-w-[180px]">db_pool.go</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-mono-code font-medium bg-cyan-400/10 text-cyan-400 border border-cyan-400/20">Go</span>
+</div>
+<span class="text-label-caps font-label-caps text-on-surface-variant">July 10, 2026</span>
+</div>
+<!-- Score Badge -->
+<div class="w-12 h-12 score-gauge-45 shrink-0">
+<div class="score-gauge-inner">
+<span class="text-label-caps font-label-caps font-bold text-critical">45%</span>
+</div>
+</div>
+</div>
+<!-- Findings Pills -->
+<div class="flex flex-wrap gap-2">
+<div class="flex items-center gap-1 bg-critical/10 text-critical px-2 py-1 rounded-full text-[11px] font-medium border border-critical/20">
+<span class="material-symbols-outlined text-[14px]">error</span> 2 Critical
+                    </div>
+<div class="flex items-center gap-1 bg-warning/10 text-warning px-2 py-1 rounded-full text-[11px] font-medium border border-warning/20">
+<span class="material-symbols-outlined text-[14px]">warning</span> 1 Warning
+                    </div>
+</div>
+<button class="w-full py-2.5 rounded-lg bg-primary-container text-white font-label-caps text-label-caps font-semibold btn-primary-glow hover:bg-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary mt-2">
+                    View Report
+                </button>
+</article>
+</section>
+<!-- Pagination -->
+<section class="flex justify-between items-center py-4 mt-2">
+<button class="glass-card px-4 py-2 rounded-lg text-body-sm font-body-sm text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary disabled:opacity-50" disabled="">
+                Prev
+            </button>
+<span class="text-label-caps font-label-caps text-on-surface-variant">Page 1 of 6</span>
+<button class="glass-card px-4 py-2 rounded-lg text-body-sm font-body-sm text-on-surface hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">
+                Next
+            </button>
+</section>
+</main>
+<!-- BottomNavBar (from JSON) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 bg-surface/65 dark:bg-surface/65 backdrop-blur-xl border-t border-outline-glass shadow-[0_-10px_30px_rgba(0,0,0,0.5)] rounded-t-xl">
+<!-- Dashboard (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-opacity p-2" href="#">
+<span class="material-symbols-outlined text-2xl mb-1">dashboard</span>
+<span class="text-label-caps font-label-caps">Dashboard</span>
+</a>
+<!-- History (Active) -->
+<a class="flex flex-col items-center justify-center text-secondary bg-secondary-container/20 rounded-xl px-4 py-1 shadow-[0_0_15px_rgba(93,230,255,0.3)] scale-90 duration-150" href="#">
+<span class="material-symbols-outlined text-2xl mb-1">history</span>
+<span class="text-label-caps font-label-caps">History</span>
+</a>
+<!-- Settings (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-opacity p-2" href="#">
+<span class="material-symbols-outlined text-2xl mb-1">settings</span>
+<span class="text-label-caps font-label-caps">Settings</span>
+</a>
+</nav>
+</body></html>

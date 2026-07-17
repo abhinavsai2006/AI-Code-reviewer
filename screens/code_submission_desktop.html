@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Code Review Assistant - Submit Code</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#c81a42",
+                        "primary": "#d2bbff",
+                        "on-secondary": "#00363e",
+                        "surface-container-lowest": "#0e0e13",
+                        "on-surface-variant": "#ccc3d8",
+                        "inverse-primary": "#732ee4",
+                        "critical": "#EF4444",
+                        "tertiary-fixed": "#ffdadb",
+                        "outline": "#958da1",
+                        "on-surface": "#e4e1e9",
+                        "on-error": "#690005",
+                        "on-primary-fixed-variant": "#5a00c6",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-low": "#1b1b20",
+                        "primary-container": "#7c3aed",
+                        "inverse-surface": "#e4e1e9",
+                        "surface-container": "#1f1f25",
+                        "primary-fixed-dim": "#d2bbff",
+                        "surface": "#131318",
+                        "primary-fixed": "#eaddff",
+                        "outline-glass": "rgba(255, 255, 255, 0.08)",
+                        "surface-container-high": "#2a292f",
+                        "surface-container-highest": "#35343a",
+                        "tertiary": "#ffb2b7",
+                        "error-container": "#93000a",
+                        "background": "#131318",
+                        "secondary": "#5de6ff",
+                        "surface-variant": "#35343a",
+                        "surface-bright": "#12121A",
+                        "on-background": "#e4e1e9",
+                        "success": "#10B981",
+                        "error": "#ffb4ab",
+                        "on-tertiary": "#67001b",
+                        "on-secondary-fixed-variant": "#004e5a",
+                        "secondary-fixed": "#a2eeff",
+                        "inverse-on-surface": "#303036",
+                        "secondary-container": "#00cbe6",
+                        "outline-variant": "#4a4455",
+                        "surface-tint": "#d2bbff",
+                        "on-secondary-container": "#00515d",
+                        "on-tertiary-container": "#ffdedf",
+                        "warning": "#F59E0B",
+                        "on-primary-fixed": "#25005a",
+                        "on-primary": "#3f008e",
+                        "on-primary-container": "#ede0ff",
+                        "tertiary-fixed-dim": "#ffb2b7",
+                        "secondary-fixed-dim": "#2fd9f4",
+                        "on-tertiary-fixed-variant": "#92002a",
+                        "on-tertiary-fixed": "#40000d",
+                        "on-secondary-fixed": "#001f25",
+                        "surface-dim": "#131318"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "unit": "4px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "mono-code": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-hero": ["Inter"],
+                        "display-hero-mobile": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["22px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "mono-code": ["13px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.25", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-hero": ["64px", { "lineHeight": "1.15", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "body-sm": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0F;
+        }
+        .mesh-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 203, 230, 0.1) 0%, transparent 40%);
+        }
+        .glass-panel {
+            background: rgba(18, 18, 26, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .code-editor-line {
+            display: flex;
+        }
+        .code-editor-line-number {
+            width: 40px;
+            text-align: right;
+            padding-right: 16px;
+            color: #4a4455;
+            user-select: none;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            margin-right: 16px;
+        }
+        .btn-primary-glow {
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.3);
+        }
+        
+        /* Checkbox styling */
+        .custom-checkbox {
+            appearance: none;
+            background-color: transparent;
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 1.15em;
+            height: 1.15em;
+            border: 1px solid #958da1;
+            border-radius: 0.15em;
+            display: grid;
+            place-content: center;
+        }
+        .custom-checkbox::before {
+            content: "";
+            width: 0.65em;
+            height: 0.65em;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em var(--tw-color-secondary);
+            background-color: #00cbe6;
+            transform-origin: bottom left;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+        .custom-checkbox:checked::before {
+            transform: scale(1);
+        }
+        .custom-checkbox:checked {
+            border-color: #00cbe6;
+        }
+    </style>
+</head>
+<body class="text-on-surface antialiased min-h-screen flex flex-col font-body-sm text-body-sm relative">
+<div class="mesh-glow"></div>
+<!-- TopNavBar JSON Component Execution -->
+<nav class="bg-surface/65 backdrop-blur-xl fixed top-0 w-full z-50 border-b border-outline-glass shadow-2xl flex items-center justify-between px-md py-sm max-w-container-max mx-auto left-0 right-0">
+<div class="flex items-center gap-lg">
+<div class="font-headline-md text-headline-md font-bold tracking-tighter text-primary">DevReview.ai</div>
+<div class="hidden md:flex items-center gap-md ml-xl font-label-caps text-label-caps">
+<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors hover:bg-white/5 transition-all duration-200 px-sm py-xs rounded" href="#">Dashboard</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1 active:scale-95 transition-transform hover:bg-white/5 transition-all duration-200 px-sm pt-xs" href="#">Submit Code</a>
+<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors hover:bg-white/5 transition-all duration-200 px-sm py-xs rounded" href="#">History</a>
+<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors hover:bg-white/5 transition-all duration-200 px-sm py-xs rounded" href="#">Docs</a>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 p-xs rounded-full">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 p-xs rounded-full">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden ml-sm border border-outline-glass">
+<img alt="Developer Profile" class="w-full h-full object-cover" data-alt="A small circular avatar of a stylized developer profile in a dark neon aesthetic, glowing subtly." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwds4LM7-9QbjMjhP0sJrg80KhSXzZRBOkFVwFJwwNJHY8EJh4NdKRHEUtULLAQWlg-N_PZOYtA8hhzwEVR9Tjj4bOahb3h1KipQe_oGBuVzEhuGxEZ5E6DH9UYtpppnmPkgdW4Eo7CF8yXWXaSxC31MZNefaA3CmAu-itlcDHNf0tJbhX1__JlBcj4GnFgk1mTcgfEtuI0VeY0J4K8W8eK_hp3oFniqM3kKHlLoRE-z3C4uyJd9qoElGqJwRf8RUQ5k0Q8o2kywU"/>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-[100px] pb-xl px-md md:px-lg max-w-container-max mx-auto w-full flex flex-col gap-lg">
+<!-- Header Section -->
+<div class="flex flex-col gap-sm max-w-3xl">
+<h1 class="font-headline-lg text-headline-lg text-white">Submit Your Code for Review</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Paste your source code snippet or drop local files below. Our review engine automatically detects the language and runs static + AI audits.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+<!-- Left Column: Submission Panel (Span 8) -->
+<div class="lg:col-span-8 flex flex-col gap-md">
+<div class="glass-panel rounded-xl overflow-hidden flex flex-col">
+<!-- Panel Header -->
+<div class="flex items-center justify-between px-md py-sm border-b border-outline-glass bg-surface-container-lowest/50">
+<div class="flex items-center gap-sm bg-surface-variant px-sm py-xs rounded-full border border-outline-glass">
+<span class="w-2 h-2 rounded-full bg-success shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
+<span class="font-label-caps text-label-caps text-on-surface">TypeScript</span>
+</div>
+<button class="flex items-center gap-xs text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm">
+                            Auto-detect Language
+                            <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+<!-- Code Editor Region -->
+<div class="bg-surface-container-lowest p-md font-mono-code text-mono-code text-on-surface-variant overflow-x-auto min-h-[300px]">
+<div class="code-editor-line"><div class="code-editor-line-number">1</div><div class="whitespace-pre"><span class="text-primary">import</span> { useState, useEffect } <span class="text-primary">from</span> <span class="text-success">'react'</span>;</div></div>
+<div class="code-editor-line"><div class="code-editor-line-number">2</div><div class="whitespace-pre"></div></div>
+<div class="code-editor-line"><div class="code-editor-line-number">3</div><div class="whitespace-pre"><span class="text-primary">export const</span> <span class="text-secondary">useDataFetcher</span> = (url: <span class="text-warning">string</span>) =&gt; {</div></div>
+<div class="code-editor-line"><div class="code-editor-line-number">4</div><div class="whitespace-pre"> <span class="text-primary">const</span> [data, setData] = useState&lt;<span class="text-warning">any</span>&gt;(<span class="text-primary">null</span>);</div></div>
+<div class="code-editor-line"><div class="code-editor-line-number">5</div><div class="whitespace-pre"> <span class="text-primary">const</span> [loading, setLoading] = useState&lt;<span class="text-warning">boolean</span>&gt;(<span class="text-primary">true</span>);</div></div>
+<div class="code-editor-line"><div class="code-editor-line-number">6</div><div class="whitespace-pre"></div></div>
+<div class="code-editor-line"><div class="code-editor-line-number">7</div><div class="whitespace-pre">  useEffect(() =&gt; {</div></div>
+<div class="code-editor-line"><div class="code-editor-line-number">8</div><div class="whitespace-pre"> <span class="text-primary">const</span> fetchData = <span class="text-primary">async</span> () =&gt; {</div></div>
+<div class="code-editor-line"><div class="code-editor-line-number">9</div><div class="whitespace-pre"> <span class="text-primary">try</span> {</div></div>
+<div class="code-editor-line"><div class="code-editor-line-number">10</div><div class="whitespace-pre"> <span class="text-primary">const</span> response = <span class="text-primary">await</span> fetch(url);</div></div>
+<div class="code-editor-line"><div class="code-editor-line-number">11</div><div class="whitespace-pre"> <span class="text-primary">const</span> json = <span class="text-primary">await</span> response.json();</div></div>
+<div class="code-editor-line"><div class="code-editor-line-number">12</div><div class="whitespace-pre">        setData(json);</div></div>
+<div class="code-editor-line"><div class="code-editor-line-number">13</div><div class="whitespace-pre">      } <span class="text-primary">catch</span> (error) {</div></div>
+<div class="code-editor-line"><div class="code-editor-line-number">14</div><div class="whitespace-pre">        console.error(<span class="text-success">'Error fetching data'</span>, error);</div></div>
+<div class="code-editor-line"><div class="code-editor-line-number">15</div><div class="whitespace-pre">      } <span class="text-primary">finally</span> {</div></div>
+<div class="code-editor-line"><div class="code-editor-line-number">16</div><div class="whitespace-pre">        setLoading(<span class="text-primary">false</span>);</div></div>
+<div class="code-editor-line"><div class="code-editor-line-number">17</div><div class="whitespace-pre">      }</div></div>
+<div class="code-editor-line"><div class="code-editor-line-number">18</div><div class="whitespace-pre">    };</div></div>
+<div class="code-editor-line"><div class="code-editor-line-number">19</div><div class="whitespace-pre">    fetchData();</div></div>
+<div class="code-editor-line"><div class="code-editor-line-number">20</div><div class="whitespace-pre">  }, [url]);</div></div>
+</div>
+<!-- OR Divider -->
+<div class="relative flex py-sm items-center px-md">
+<div class="flex-grow border-t border-outline-glass"></div>
+<span class="flex-shrink-0 mx-4 font-label-caps text-label-caps text-on-surface-variant">OR</span>
+<div class="flex-grow border-t border-outline-glass"></div>
+</div>
+<!-- Dropzone -->
+<div class="m-md mt-0 border-2 border-dashed border-outline-variant hover:border-secondary transition-colors rounded-lg bg-surface-container-low/50 p-lg flex flex-col items-center justify-center text-center cursor-pointer group">
+<div class="p-sm bg-surface-variant rounded-full mb-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 0; font-size: 32px;">folder_open</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface mb-xs">Drag &amp; drop files here, or <span class="text-secondary hover:underline">browse local files</span></p>
+<p class="font-body-sm text-body-sm text-on-surface-variant opacity-70">Supported: .js, .ts, .py, .go, .rs (Max 5MB)</p>
+</div>
+<!-- Footer Actions -->
+<div class="bg-surface-container-lowest/80 border-t border-outline-glass p-md flex flex-col md:flex-row items-center justify-between gap-md">
+<div class="flex flex-col gap-sm w-full md:w-auto">
+<label class="flex items-center gap-sm cursor-pointer hover:text-white transition-colors">
+<input checked="" class="custom-checkbox" type="checkbox"/>
+<span>Enable AI deep-scan</span>
+</label>
+<label class="flex items-center gap-sm cursor-pointer hover:text-white transition-colors">
+<input checked="" class="custom-checkbox" type="checkbox"/>
+<span>Enable strict static rules</span>
+</label>
+</div>
+<div class="flex items-center gap-sm w-full md:w-auto justify-end">
+<button class="px-md py-sm rounded-lg border border-outline-glass text-on-surface hover:bg-surface-variant transition-colors font-label-caps text-label-caps tracking-widest">
+                                Clear
+                            </button>
+<button class="px-lg py-sm rounded-[6px] bg-primary-container text-white font-label-caps text-label-caps tracking-widest btn-primary-glow hover:bg-inverse-primary transition-all active:scale-95 flex items-center gap-sm">
+<span class="material-symbols-outlined text-sm">play_arrow</span>
+                                Run Code Review
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Floating Side Cards (Span 4) -->
+<div class="lg:col-span-4 flex flex-col gap-md">
+<!-- Security Card -->
+<div class="glass-panel rounded-xl p-md flex flex-col gap-sm relative overflow-hidden">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-success/10 rounded-full blur-xl pointer-events-none"></div>
+<div class="flex items-center gap-sm text-success mb-xs">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">security</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Security First</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                        Your code is analyzed in isolated environments and never stored without permission. We adhere to strict zero-retention policies for all submitted source code.
+                    </p>
+</div>
+<!-- Engines Card -->
+<div class="glass-panel rounded-xl p-md flex flex-col gap-sm">
+<div class="flex items-center gap-sm text-secondary mb-xs">
+<span class="material-symbols-outlined">memory</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Supported Engines</h3>
+</div>
+<ul class="flex flex-col gap-xs font-mono-code text-mono-code">
+<li class="flex items-center justify-between p-xs rounded bg-surface-container-lowest/50 border border-outline-glass/50 hover:border-outline-glass transition-colors">
+<span class="text-on-surface">ESLint</span>
+<span class="w-2 h-2 rounded-full bg-success"></span>
+</li>
+<li class="flex items-center justify-between p-xs rounded bg-surface-container-lowest/50 border border-outline-glass/50 hover:border-outline-glass transition-colors">
+<span class="text-on-surface">Pylint</span>
+<span class="w-2 h-2 rounded-full bg-success"></span>
+</li>
+<li class="flex items-center justify-between p-xs rounded bg-surface-container-lowest/50 border border-outline-glass/50 hover:border-outline-glass transition-colors">
+<span class="text-on-surface">Cargo Clippy</span>
+<span class="w-2 h-2 rounded-full bg-success"></span>
+</li>
+<li class="flex items-center justify-between p-xs rounded bg-surface-container-lowest/50 border border-outline-glass/50 hover:border-outline-glass transition-colors">
+<span class="text-on-surface">SonarQube Core</span>
+<span class="w-2 h-2 rounded-full bg-warning"></span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer JSON Component Execution -->
+<footer class="bg-surface-container-lowest w-full py-sm border-t border-outline-glass mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center px-xl max-w-container-max mx-auto opacity-80 font-mono-code text-mono-code text-on-surface-variant">
+<div>© 2024 DevReview.ai - Technical Grade Analysis</div>
+<div class="flex gap-md mt-sm md:mt-0">
+<a class="opacity-60 hover:opacity-100 hover:text-secondary transition-opacity duration-150" href="#">Privacy</a>
+<a class="opacity-60 hover:opacity-100 hover:text-secondary transition-opacity duration-150" href="#">Terms</a>
+<a class="opacity-60 hover:opacity-100 hover:text-secondary transition-opacity duration-150" href="#">API Status</a>
+<a class="opacity-60 hover:opacity-100 hover:text-secondary transition-opacity duration-150" href="#">CLI Docs</a>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nexus.AI - Automate Your Code Reviews</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container": "#111118",
+                      "on-primary-fixed": "#25005a",
+                      "tertiary-container": "#c81a42",
+                      "surface-bright": "#12121A",
+                      "outline-variant": "#4a4455",
+                      "on-background": "#e4e1e9",
+                      "inverse-primary": "#732ee4",
+                      "surface-dim": "#131318",
+                      "secondary": "#5de6ff",
+                      "tertiary-fixed": "#ffdadb",
+                      "on-error-container": "#ffdad6",
+                      "inverse-surface": "#e4e1e9",
+                      "surface-container-low": "#1b1b20",
+                      "primary-fixed": "#eaddff",
+                      "surface-variant": "#35343a",
+                      "on-surface-variant": "#ccc3d8",
+                      "primary-container": "#7c3aed",
+                      "tertiary-fixed-dim": "#ffb2b7",
+                      "secondary-fixed-dim": "#2fd9f4",
+                      "on-tertiary-fixed-variant": "#92002a",
+                      "surface-container-high": "#2a292f",
+                      "outline": "#958da1",
+                      "on-primary-container": "#ede0ff",
+                      "secondary-fixed": "#a2eeff",
+                      "background": "#131318",
+                      "primary-fixed-dim": "#d2bbff",
+                      "on-tertiary-fixed": "#40000d",
+                      "error": "#ffb4ab",
+                      "primary": "#d2bbff",
+                      "error-container": "#93000a",
+                      "surface-tint": "#d2bbff",
+                      "on-secondary-fixed-variant": "#004e5a",
+                      "on-tertiary-container": "#ffdedf",
+                      "inverse-on-surface": "#303036",
+                      "tertiary": "#ffb2b7",
+                      "secondary-container": "#00cbe6",
+                      "on-surface": "#e4e1e9",
+                      "on-error": "#690005",
+                      "surface": "#131318",
+                      "surface-container-lowest": "#0e0e13",
+                      "warning": "#F59E0B",
+                      "outline-glass": "rgba(255, 255, 255, 0.08)",
+                      "success": "#10B981",
+                      "surface-container-highest": "#35343a",
+                      "on-secondary": "#00363e",
+                      "on-primary-fixed-variant": "#5a00c6",
+                      "on-secondary-fixed": "#001f25",
+                      "on-secondary-container": "#00515d",
+                      "on-tertiary": "#67001b",
+                      "on-primary": "#3f008e",
+                      "critical": "#EF4444"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "sm": "8px",
+                      "md": "16px",
+                      "container-max": "1280px",
+                      "lg": "24px",
+                      "xs": "4px",
+                      "unit": "4px"
+              },
+              "fontFamily": {
+                      "mono-code": [
+                              "JetBrains Mono"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "display-hero": [
+                              "Inter"
+                      ],
+                      "display-hero-mobile": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "mono-code": [
+                              "13px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "22px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-hero": [
+                              "64px",
+                              {
+                                      "lineHeight": "1.15",
+                                      "letterSpacing": "-0.03em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "display-hero-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.25",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0F;
+            color: #e4e1e9;
+        }
+        .glass-panel {
+            background: rgba(18, 18, 26, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .mesh-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            background: radial-gradient(circle at 30% 40%, rgba(124, 58, 237, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 60%, rgba(34, 211, 238, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            pointer-events: none;
+            filter: blur(60px);
+        }
+        .btn-primary {
+            background-color: theme('colors.primary-container');
+            color: white;
+            box-shadow: 0 0 15px theme('colors.primary-container' / 30%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            box-shadow: 0 0 25px theme('colors.primary-container' / 50%);
+            transform: translateY(-1px);
+        }
+        .code-block-border {
+            border-left: 1px solid theme('colors.surface-container-high');
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="antialiased min-h-screen flex flex-col relative overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-md py-sm max-w-container-max mx-auto bg-surface-container/65 backdrop-blur-xl border-b border-outline-glass shadow-2xl">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary font-bold">terminal</span>
+<span class="font-headline-md text-headline-md font-bold text-primary tracking-tighter">AI Reviewer</span>
+</div>
+<button class="btn-primary font-body-sm text-body-sm px-md py-sm rounded-full active:scale-95 transition-transform hover:text-secondary duration-300">
+            Get Started
+        </button>
+</header>
+<main class="flex-grow pt-[80px] pb-xl px-md max-w-container-max mx-auto w-full relative z-10 flex flex-col gap-xl">
+<!-- Hero Section -->
+<section class="relative pt-xl pb-lg flex flex-col items-center justify-center text-center">
+<div class="mesh-glow"></div>
+<h1 class="font-display-hero-mobile text-display-hero-mobile md:font-display-hero md:text-display-hero text-on-surface mb-sm max-w-3xl">
+                Automate Your Code Reviews.
+            </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-xl">
+                Paste code or upload files to get instant AI + static-analysis reviews.
+            </p>
+<!-- Visual Stack -->
+<div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-lg relative mt-md">
+<!-- Glassmorphic Code Card -->
+<div class="glass-panel rounded-xl p-md text-left relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary opacity-50"></div>
+<div class="flex items-center justify-between mb-sm border-b border-outline-glass pb-sm">
+<span class="font-label-caps text-label-caps text-on-surface-variant">query.js</span>
+<span class="material-symbols-outlined text-outline text-[16px]">code</span>
+</div>
+<div class="font-mono-code text-mono-code text-on-surface overflow-x-auto whitespace-pre">
+<span class="text-secondary">const</span> <span class="text-primary">userId</span> = req.params.id;
+<span class="text-secondary">const</span> query = <span class="text-warning">`SELECT * FROM users WHERE id = ${userId}`</span>;
+db.execute(query);
+                    </div>
+<!-- Inline Annotation -->
+<div class="mt-md bg-surface-bright/80 backdrop-blur-md border border-outline-glass rounded p-sm flex items-start gap-sm">
+<div class="bg-critical/10 text-critical font-label-caps text-label-caps px-2 py-1 rounded-full flex items-center gap-1 shrink-0">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+                            Critical
+                        </div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-tight">
+                            Potential SQL Injection detected. Use parameterized queries instead of string interpolation.
+                        </p>
+</div>
+</div>
+<!-- Glassmorphic Metrics Card -->
+<div class="glass-panel rounded-xl p-md flex flex-col items-center justify-center relative">
+<div class="absolute top-0 right-0 w-16 h-16 bg-success/10 blur-xl rounded-full"></div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-lg self-start w-full border-b border-outline-glass pb-sm">Analysis Overview</h3>
+<div class="relative w-32 h-32 mb-lg">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<circle class="text-surface-container-high" cx="50" cy="50" fill="none" r="45" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-success" cx="50" cy="50" fill="none" r="45" stroke="currentColor" stroke-dasharray="282.7" stroke-dashoffset="36.75" stroke-linecap="round" stroke-width="4"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center flex-col">
+<span class="font-headline-lg text-headline-lg text-success">87%</span>
+<span class="font-label-caps text-label-caps text-outline text-[10px]">SCORE</span>
+</div>
+</div>
+<div class="w-full grid grid-cols-2 gap-sm">
+<div class="bg-surface-container-low border border-outline-glass rounded p-sm flex flex-col items-center">
+<span class="font-label-caps text-label-caps text-outline mb-1">Complexity</span>
+<span class="font-body-sm text-body-sm text-secondary">Low</span>
+</div>
+<div class="bg-surface-container-low border border-outline-glass rounded p-sm flex flex-col items-center">
+<span class="font-label-caps text-label-caps text-outline mb-1">Issues</span>
+<span class="font-body-sm text-body-sm text-warning">3 Found</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Features Section -->
+<section class="flex flex-col gap-md max-w-4xl mx-auto w-full pb-xl">
+<h2 class="font-headline-md text-headline-md text-on-surface border-b border-outline-glass pb-sm mb-sm">Capabilities</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Static Analysis Card -->
+<div class="glass-panel rounded-xl p-md flex flex-col gap-md hover:border-primary/30 transition-colors">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary">bug_report</span>
+<h3 class="font-body-lg text-body-lg text-on-surface font-semibold">Deep Static Analysis</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex-grow">
+                        Identify vulnerabilities, code smells, and anti-patterns before they hit production.
+                    </p>
+<div class="flex flex-wrap gap-2 mt-auto">
+<span class="bg-critical/10 text-critical font-label-caps text-label-caps px-2 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">gpp_bad</span> Critical
+                        </span>
+<span class="bg-warning/10 text-warning font-label-caps text-label-caps px-2 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">warning</span> Warning
+                        </span>
+<span class="bg-secondary/10 text-secondary font-label-caps text-label-caps px-2 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">info</span> Info
+                        </span>
+</div>
+</div>
+<!-- AI Review Card -->
+<div class="glass-panel rounded-xl p-md flex flex-col gap-md hover:border-primary/30 transition-colors">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">psychology</span>
+<h3 class="font-body-lg text-body-lg text-on-surface font-semibold">AI-Powered Context</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex-grow">
+                        Go beyond syntax. Our AI understands business logic to suggest architectural improvements and catch nuanced logic errors.
+                    </p>
+<div class="w-full h-1 bg-surface-container-high rounded overflow-hidden mt-auto">
+<div class="h-full bg-primary w-3/4"></div>
+</div>
+</div>
+<!-- Complexity Metrics Card -->
+<div class="glass-panel rounded-xl p-md flex flex-col gap-md hover:border-primary/30 transition-colors">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary">monitoring</span>
+<h3 class="font-body-lg text-body-lg text-on-surface font-semibold">Complexity Metrics</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex-grow">
+                        Track Cyclomatic Complexity, Maintainability Index, and code churn over time.
+                    </p>
+</div>
+<!-- Team Workspace Card -->
+<div class="glass-panel rounded-xl p-md flex flex-col gap-md hover:border-primary/30 transition-colors">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">groups</span>
+<h3 class="font-body-lg text-body-lg text-on-surface font-semibold">Team Workspace</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex-grow">
+                        Collaborate on reviews, enforce team standards, and track improvement across repositories.
+                    </p>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-xl px-md flex flex-col md:flex-row justify-between items-center gap-md max-w-container-max mx-auto bg-surface-container-lowest border-t border-outline-glass mt-auto relative z-10">
+<div class="font-mono-code text-mono-code text-primary">
+            © 2024 AI Code Review Assistant. Engineered for technical excellence.
+        </div>
+<div class="flex flex-wrap gap-md font-body-sm text-body-sm text-outline">
+<a class="hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="hover:text-primary transition-colors" href="#">Security</a>
+<a class="hover:text-primary transition-colors" href="#">Changelog</a>
+<a class="hover:text-primary transition-colors" href="#">Status</a>
+</div>
+</footer>
+</body></html>

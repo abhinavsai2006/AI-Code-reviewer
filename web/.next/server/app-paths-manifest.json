@@ -1,0 +1,5 @@
+{
+  "/dashboard/submit/page": "app/dashboard/submit/page.js",
+  "/dashboard/reviews/[id]/page": "app/dashboard/reviews/[id]/page.js",
+  "/dashboard/reviews/page": "app/dashboard/reviews/page.js"
+}
