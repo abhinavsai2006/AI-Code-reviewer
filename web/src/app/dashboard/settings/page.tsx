@@ -73,26 +73,6 @@ export default function SettingsPage() {
 
             <div className="h-px bg-outline-glass my-2" />
 
-            <h3 className="font-bold text-white text-base flex items-center gap-2 mb-1">
-              <span className="material-symbols-outlined text-secondary text-base">vpn_key</span>
-              AI API Engine Credentials
-            </h3>
-            <p className="text-on-surface-variant text-xs mb-1">
-              Override the system NVIDIA NIM API key to use your own quota limit. Key credentials remain saved locally inside your web browser storage.
-            </p>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-on-surface-variant font-mono-code" htmlFor="nvidiaKey">NVIDIA NIM API Key</label>
-              <input
-                id="nvidiaKey"
-                type="password"
-                value={nvidiaKey}
-                onChange={e => setNvidiaKey(e.target.value)}
-                placeholder="nvapi-..."
-                className="w-full bg-surface-container-lowest border border-outline-glass rounded-lg py-2.5 px-4 text-on-surface placeholder:text-outline/50 focus:outline-none focus:border-secondary focus:shadow-[0_0_0_1px_rgba(93,230,255,0.2)] text-sm h-11 transition-all"
-              />
-            </div>
-
             {saveSuccess && (
               <div className="bg-success/10 border border-success/30 text-success text-xs rounded-lg px-4 py-3 flex items-center gap-2 transition-all">
                 <span className="material-symbols-outlined text-[18px]">check_circle</span>
