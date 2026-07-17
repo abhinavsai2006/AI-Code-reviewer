@@ -1,286 +1,488 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function LandingPage() {
   const router = useRouter();
+  const glowRef = useRef<HTMLDivElement>(null);
 
-  // Redirect logged-in users straight to dashboard
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) router.replace('/dashboard/reviews');
+    if (token) router.replace('/dashboard');
   }, []);
 
-  // WebGL Shader Animation from Stitch
+  // Mouse-tracking glow effect
   useEffect(() => {
-    const canvas = document.getElementById('shader-canvas-ANIMATION_3') as HTMLCanvasElement;
-    if (!canvas) return;
-
-    function syncSize() {
-      const w = canvas.clientWidth  || 1280;
-      const h = canvas.clientHeight || 720;
-      if (canvas.width !== w || canvas.height !== h) {
-        canvas.width  = w;
-        canvas.height = h;
-      }
-    }
-    
-    let resizeObserver: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== 'undefined') {
-      resizeObserver = new ResizeObserver(syncSize);
-      resizeObserver.observe(canvas);
-    }
-    syncSize();
-
-    const gl = (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')) as WebGLRenderingContext | null;
-    if (!gl) return;
-
-    const vs = `attribute vec2 a_position;
-varying vec2 v_texCoord;
-void main() {
-  v_texCoord = a_position * 0.5 + 0.5;
-  gl_Position = vec4(a_position, 0.0, 1.0);
-}`;
-
-    const fs = `precision highp float;
-varying vec2 v_texCoord;
-uniform float u_time;
-uniform vec2 u_resolution;
-
-void main() {
-    vec2 uv = v_texCoord;
-    float t = u_time * 0.2;
-    vec3 color1 = vec3(0.486, 0.227, 0.929); // #7C3AED (Violet)
-    vec3 color2 = vec3(0.133, 0.827, 0.933); // #22D3EE (Cyan)
-    vec3 bg = vec3(0.039, 0.039, 0.059);    // #0A0A0F
-    
-    float w1 = sin(uv.x * 2.0 + t) * 0.5 + 0.5;
-    float w2 = cos(uv.y * 3.0 - t * 1.5) * 0.5 + 0.5;
-    float w3 = sin((uv.x + uv.y) * 1.5 + t * 0.8) * 0.5 + 0.5;
-    
-    vec3 mixed = mix(color1, color2, w1 * w2);
-    mixed = mix(mixed, bg, 1.0 - (w3 * 0.2));
-    
-    float dist = distance(uv, vec2(0.5));
-    float vignette = smoothstep(0.8, 0.2, dist);
-    
-    gl_FragColor = vec4(mixed * vignette * 0.4, 1.0);
-}`;
-
-    function cs(type: number, src: string) {
-      const s = gl.createShader(type)!;
-      gl.shaderSource(s, src);
-      gl.compileShader(s);
-      return s;
-    }
-
-    const prog = gl.createProgram()!;
-    gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
-    gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
-    gl.linkProgram(prog);
-    gl.useProgram(prog);
-
-    const buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
-
-    const pos = gl.getAttribLocation(prog, 'a_position');
-    gl.enableVertexAttribArray(pos);
-    gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
-
-    const uTime = gl.getUniformLocation(prog, 'u_time');
-    const uRes = gl.getUniformLocation(prog, 'u_resolution');
-
-    let animationFrameId: number;
-    function render(t: number) {
-      if (typeof ResizeObserver === 'undefined') syncSize();
-      gl.viewport(0, 0, (gl as any).canvas.width, (gl as any).canvas.height);
-      if (uTime) gl.uniform1f(uTime, t * 0.001);
-      if (uRes) gl.uniform2f(uRes, (gl as any).canvas.width, (gl as any).canvas.height);
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      animationFrameId = requestAnimationFrame(render);
-    }
-    animationFrameId = requestAnimationFrame(render);
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      if (resizeObserver) {
-        resizeObserver.disconnect();
-      }
+    const glow = glowRef.current;
+    if (!glow) return;
+    const handler = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 30;
+      const y = (e.clientY / window.innerHeight - 0.5) * 30;
+      glow.style.transform = `translate(calc(-50% + ${x}px), ${y}px)`;
     };
+    window.addEventListener('mousemove', handler);
+    return () => window.removeEventListener('mousemove', handler);
+  }, []);
+
+  // Intersection Observer for scroll animations
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+    );
+    document.querySelectorAll('.scroll-animate').forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  // Counter animation
+  useEffect(() => {
+    const counters = document.querySelectorAll('[data-count]');
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement;
+            const target = parseInt(el.dataset.count || '0');
+            const suffix = el.dataset.suffix || '';
+            let current = 0;
+            const step = Math.ceil(target / 40);
+            const timer = setInterval(() => {
+              current = Math.min(current + step, target);
+              el.textContent = current + suffix;
+              if (current >= target) clearInterval(timer);
+            }, 30);
+            observer.unobserve(el);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+    counters.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
   }, []);
 
   return (
-    <main className="flex-grow pt-24 pb-16 relative z-10">
-      {/* Hero Background */}
-      <div className="absolute inset-0 z-0 h-[800px] overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 w-full h-full opacity-60">
-          <canvas id="shader-canvas-ANIMATION_3" className="w-full h-full block" />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0A0A0F]/80 to-[#0A0A0F]" />
-      </div>
+    <>
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
-      {/* ── Hero Section ── */}
-      <section className="text-center mt-8 mb-[120px] max-w-4xl mx-auto px-6 flex flex-col items-center">
-        <div className="inline-flex items-center gap-2 bg-surface-container border border-outline-glass rounded-full px-4 py-1.5 mb-8 text-xs font-mono-code text-secondary">
-          <span className="w-2 h-2 rounded-full bg-success animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-          AI + Static Analysis Engine Active
-        </div>
+        .glass-card {
+          background: rgba(31, 31, 37, 0.4);
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-top-color: rgba(255, 255, 255, 0.12);
+          border-left-color: rgba(255, 255, 255, 0.12);
+        }
+        .glass-card:hover {
+          border-color: rgba(255, 255, 255, 0.15);
+        }
+        .gradient-text {
+          background: linear-gradient(135deg, #d2bbff 0%, #22D3EE 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+        .primary-glow {
+          box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+        }
+        .primary-glow:hover {
+          box-shadow: 0 0 35px rgba(124, 58, 237, 0.6);
+        }
+        .step-line {
+          background: linear-gradient(90deg, #7c3aed 0%, #22d3ee 100%);
+          height: 2px;
+          width: 100%;
+          position: absolute;
+          top: 24px;
+          left: 50%;
+          z-index: 0;
+        }
+        @keyframes pulse-glow {
+          0% { opacity: 0.4; }
+          50% { opacity: 0.8; }
+          100% { opacity: 0.4; }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-12px); }
+        }
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        .animate-glow {
+          animation: pulse-glow 3s infinite ease-in-out;
+        }
+        .animate-float {
+          animation: float 6s infinite ease-in-out;
+        }
+        .scroll-animate {
+          opacity: 0;
+          transform: translateY(24px);
+          transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .scroll-animate.animate-in {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .scroll-animate:nth-child(2) { transition-delay: 0.1s; }
+        .scroll-animate:nth-child(3) { transition-delay: 0.2s; }
+        .scroll-animate:nth-child(4) { transition-delay: 0.3s; }
+        .scroll-animate:nth-child(5) { transition-delay: 0.4s; }
+        .scroll-animate:nth-child(6) { transition-delay: 0.5s; }
+        .code-block {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 13px;
+          line-height: 1.6;
+        }
+        .code-keyword { color: #c084fc; }
+        .code-string { color: #5de6ff; }
+        .code-function { color: #fbbf24; }
+        .code-comment { color: #6b7280; font-style: italic; }
+        .code-number { color: #f472b6; }
+        .shimmer-border {
+          background: linear-gradient(90deg, transparent 0%, rgba(124,58,237,0.3) 50%, transparent 100%);
+          background-size: 200% 100%;
+          animation: shimmer 3s infinite;
+        }
+      `}</style>
 
-        <h1 className="font-sans text-5xl md:text-[64px] font-extrabold text-on-surface mb-6 text-glow leading-tight tracking-tight hidden md:block">
-          Automate Your Code Reviews.<br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-            Ship Flawless Code.
-          </span>
-        </h1>
-        <h1 className="font-sans text-4xl font-extrabold text-on-surface mb-6 text-glow leading-tight md:hidden">
-          Automate Your Code Reviews. Ship Flawless Code.
-        </h1>
+      <main className="min-h-screen bg-background text-on-surface overflow-x-hidden" style={{ fontFamily: "'Geist', 'Inter', system-ui, sans-serif" }}>
 
-        <p className="text-lg text-on-surface-variant mb-10 max-w-2xl mx-auto leading-relaxed">
-          Paste your code snippet or drag files to receive immediate, AI-powered + static-analysis reviews.
-          Zero setup, no repository URL needed.
-        </p>
+        {/* ── Navigation ── */}
+        <nav className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/[0.08]" style={{ boxShadow: '0 0 30px rgba(124,58,237,0.08)' }}>
+          <div className="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto w-full">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-primary-container shadow-[0_0_8px_rgba(124,58,237,0.8)]" />
+              <span className="text-xl font-extrabold text-primary tracking-tight" style={{ fontFamily: "'Geist', sans-serif" }}>Nexus AI</span>
+            </div>
+            <div className="hidden md:flex items-center gap-6">
+              <a href="#features" className="text-on-surface-variant hover:text-primary transition-colors text-sm">Features</a>
+              <a href="#how-it-works" className="text-on-surface-variant hover:text-primary transition-colors text-sm">How It Works</a>
+              <a href="#demo" className="text-on-surface-variant hover:text-primary transition-colors text-sm">Live Demo</a>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link href="/login" className="hidden md:block text-secondary border border-secondary/40 px-4 py-2 rounded-lg hover:bg-secondary/10 transition-all text-xs font-semibold tracking-wider uppercase">
+                Log In
+              </Link>
+              <Link href="/signup" className="bg-primary-container text-white px-4 py-2 rounded-lg text-xs font-semibold tracking-wider uppercase primary-glow transition-all active:scale-95">
+                Start Free
+              </Link>
+            </div>
+          </div>
+        </nav>
 
-        <div className="flex gap-4 justify-center flex-wrap">
-          <Link
-            href="/dashboard/submit"
-            className="bg-primary-container text-white px-8 py-3.5 rounded-lg font-semibold shadow-[0_0_20px_rgba(124,58,237,0.4)] hover:shadow-[0_0_30px_rgba(124,58,237,0.6)] transition-all flex items-center gap-2 active:scale-95"
-          >
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>rocket_launch</span>
-            Start Reviewing
-          </Link>
-          <Link
-            href="/login"
-            className="glass-panel text-on-surface px-8 py-3.5 rounded-lg font-semibold hover:bg-surface-variant transition-colors flex items-center gap-2 active:scale-95"
-          >
-            <span className="material-symbols-outlined">login</span>
-            Sign In
-          </Link>
-        </div>
-      </section>
+        {/* ── Hero Section ── */}
+        <section className="relative px-6 max-w-7xl mx-auto text-center pt-40 pb-20">
+          {/* Animated Background Glow */}
+          <div ref={glowRef} className="absolute -top-32 left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full -z-10 animate-glow pointer-events-none" style={{ background: 'radial-gradient(ellipse, rgba(124,58,237,0.15) 0%, rgba(34,211,238,0.05) 50%, transparent 70%)' }} />
 
-      {/* ── Split-Screen Code Preview ── */}
-      <section className="mb-[120px] max-w-7xl mx-auto px-6">
-        <div className="glass-panel rounded-xl overflow-hidden flex flex-col md:flex-row relative transition-transform duration-500 hover:scale-[1.005]">
-          {/* Window Controls */}
-          <div className="absolute top-0 left-0 w-full h-8 bg-surface-container-lowest/80 border-b border-outline-glass flex items-center px-4 gap-2 z-20">
-            <div className="w-3 h-3 rounded-full bg-critical" />
-            <div className="w-3 h-3 rounded-full bg-warning" />
-            <div className="w-3 h-3 rounded-full bg-success" />
-            <span className="text-on-surface-variant font-mono-code text-xs ml-2 opacity-50">src/services/queryBuilder.ts</span>
+          <div className="inline-flex items-center gap-2 bg-surface-container border border-white/[0.08] rounded-full px-4 py-1.5 mb-8 text-xs font-semibold tracking-wider uppercase text-secondary">
+            <span className="w-2 h-2 rounded-full bg-success animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+            AI + Static Analysis Engine Active
           </div>
 
-          {/* Code Pane */}
-          <div className="w-full md:w-2/3 bg-[#111118]/90 pt-10 pb-4 overflow-x-auto relative z-10 border-r border-b md:border-b-0 border-outline-glass flex">
-            <div className="w-10 text-right pr-3 text-outline font-mono-code text-[13px] select-none border-r border-outline-glass pt-3" style={{ background: 'rgba(0,0,0,0.2)' }}>
-              {[1,2,3,4,5,6,7,8,9,10,11].map(n => <div key={n}>{n}</div>)}
-              <div className="text-critical bg-critical/20 relative -left-px border-l-2 border-critical pl-px">12</div>
-              {[13,14,15].map(n => <div key={n}>{n}</div>)}
-            </div>
-            <div className="pl-4 pt-3 font-mono-code text-[13px] text-[#A6ACCD] w-full relative">
-              <pre><code>
-{`import `}<span className="text-[#89DDFF]">{'{'}</span>{` db `}<span className="text-[#89DDFF]">{'}'}</span>{` from `}<span className="text-[#C3E88D]">'@/config/database'</span>{`;
+          <h1 className="text-5xl md:text-[72px] font-extrabold mb-6 max-w-5xl mx-auto leading-[1.08] tracking-tight" style={{ fontFamily: "'Geist', sans-serif" }}>
+            Automate Your Code Reviews,{' '}
+            <span className="gradient-text">Ship Flawless Code</span>
+          </h1>
 
-`}<span className="text-[#89DDFF]">export</span>{` `}<span className="text-[#89DDFF]">async function</span>{` `}<span className="text-[#82AAFF]">getUserData</span>{`(reqId: `}<span className="text-[#FFCB6B]">string</span>{`) {
-  const id = reqId;
+          <p className="text-on-surface-variant text-lg max-w-2xl mx-auto mb-10 leading-relaxed" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '14px' }}>
+            Nexus AI deeply understands your codebase. Get instant architectural insights, security audits, and performance optimizations — zero setup required.
+          </p>
 
-  `}<span className="text-[#546E7A] italic">{'// Fetch user profile securely?'}</span>{`
-  `}<span className="text-[#89DDFF]">const</span>{` query = `}<span className="text-[#C3E88D]">{"`SELECT * FROM users WHERE id = ${'{'}id{'}'}`"}</span>{`;
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+            <Link href="/dashboard/submit" className="bg-primary-container text-white px-10 py-4 rounded-xl font-bold primary-glow transition-all hover:-translate-y-1 active:scale-95 text-sm tracking-wide">
+              Start Free Audit
+            </Link>
+            <a href="#demo" className="border border-secondary/40 text-secondary px-10 py-4 rounded-xl font-bold hover:bg-secondary/5 transition-all hover:-translate-y-1 text-sm tracking-wide">
+              Watch Demo
+            </a>
+          </div>
 
-  `}<span className="text-[#89DDFF]">try</span>{` {
-    `}<span className="text-[#89DDFF]">const</span>{` result = `}<span className="text-[#89DDFF]">await</span>{` db.`}<span className="text-[#82AAFF]">execute</span>{`(query);
-    `}<span className="text-[#89DDFF]">return</span>{` result.rows;
-  } `}<span className="text-[#89DDFF]">catch</span>{` (e) {
-    console.`}<span className="text-[#82AAFF]">error</span>{`(e);
-  }
-}`}
-              </code></pre>
-
-              {/* Inline AI Comment */}
-              <div className="absolute top-[155px] left-4 right-4 bg-surface-bright/95 backdrop-blur-md rounded-lg p-3 border border-outline-glass shadow-lg z-20 flex gap-2 items-start">
-                <span className="material-symbols-outlined text-critical mt-0.5" style={{ fontVariationSettings: "'FILL' 1", fontSize: '18px' }}>error</span>
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="bg-critical/10 text-critical text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-critical/20">Critical</span>
-                    <span className="text-on-surface text-sm font-semibold">SQL Injection Risk</span>
+          {/* Hero Image - Floating 3D Mockup */}
+          <div className="relative group animate-float">
+            <div className="absolute inset-0 bg-primary/10 blur-3xl rounded-full opacity-20 group-hover:opacity-40 transition-opacity duration-700" />
+            <div className="relative rounded-2xl border border-white/[0.08] overflow-hidden" style={{ boxShadow: '0 25px 80px rgba(0,0,0,0.5), 0 0 40px rgba(124,58,237,0.1)' }}>
+              {/* Simulated Code Editor Hero */}
+              <div className="bg-surface-container-lowest p-1">
+                {/* Window Chrome */}
+                <div className="flex items-center gap-2 px-4 py-3 border-b border-white/[0.06]">
+                  <div className="flex gap-2">
+                    <div className="w-3 h-3 rounded-full bg-critical/60" />
+                    <div className="w-3 h-3 rounded-full bg-warning/60" />
+                    <div className="w-3 h-3 rounded-full bg-success/60" />
                   </div>
-                  <p className="text-on-surface-variant text-xs">Potential SQL Injection. Avoid string concatenation in queries. Use parameterized queries instead.</p>
+                  <div className="flex-1 text-center text-xs text-outline font-mono-code">auth_service.py — Nexus AI Review</div>
+                </div>
+                {/* Code Content */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
+                  <div className="lg:col-span-7 p-6 border-r border-white/[0.06]">
+                    <div className="code-block text-left space-y-0.5">
+                      <div><span className="text-outline mr-4 select-none">1</span><span className="code-keyword">class</span> <span className="code-function">AuthService</span>:</div>
+                      <div><span className="text-outline mr-4 select-none">2</span>    <span className="code-keyword">def</span> <span className="code-function">authenticate</span>(self, token):</div>
+                      <div><span className="text-outline mr-4 select-none">3</span>        <span className="code-comment"># TODO: Add rate limiting</span></div>
+                      <div className="bg-critical/5 border-l-2 border-critical/60 pl-2 -ml-2 rounded-r"><span className="text-outline mr-4 select-none">4</span>        user = db.query(<span className="code-string">{`f"SELECT * FROM users WHERE token='{token}'"`}</span>)</div>
+                      <div><span className="text-outline mr-4 select-none">5</span>        <span className="code-keyword">if</span> <span className="code-keyword">not</span> user:</div>
+                      <div><span className="text-outline mr-4 select-none">6</span>            <span className="code-keyword">return</span> <span className="code-keyword">None</span></div>
+                      <div className="bg-warning/5 border-l-2 border-warning/60 pl-2 -ml-2 rounded-r"><span className="text-outline mr-4 select-none">7</span>        session = {'{'}token: token, exp: time() + <span className="code-number">86400</span>{'}'}</div>
+                      <div><span className="text-outline mr-4 select-none">8</span>        <span className="code-keyword">return</span> session</div>
+                    </div>
+                  </div>
+                  {/* AI Review Panel */}
+                  <div className="lg:col-span-5 p-6 bg-surface/50">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wider">
+                        <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+                        AI Review
+                      </div>
+                      {/* Score Gauge */}
+                      <div className="relative w-14 h-14">
+                        <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                          <path d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3" />
+                          <path d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="url(#gaugeGradient)" strokeWidth="3" strokeDasharray="85, 100" strokeLinecap="round" />
+                          <defs>
+                            <linearGradient id="gaugeGradient"><stop stopColor="#7c3aed" /><stop offset="1" stopColor="#22d3ee" /></linearGradient>
+                          </defs>
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center text-xs font-extrabold text-white">85</div>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="glass-card rounded-lg p-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-critical/20 text-critical border border-critical/30">CRITICAL</span>
+                          <span className="text-xs font-bold text-white">SQL Injection Risk</span>
+                        </div>
+                        <p className="text-[11px] text-on-surface-variant leading-relaxed">Line 4: String interpolation in SQL query. Use parameterized queries.</p>
+                      </div>
+                      <div className="glass-card rounded-lg p-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-warning/20 text-warning border border-warning/30">WARNING</span>
+                          <span className="text-xs font-bold text-white">Hardcoded Expiry</span>
+                        </div>
+                        <p className="text-[11px] text-on-surface-variant leading-relaxed">Line 7: Session expiry of 86400s should be configurable.</p>
+                      </div>
+                      <div className="glass-card rounded-lg p-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-secondary/20 text-secondary border border-secondary/30">INFO</span>
+                          <span className="text-xs font-bold text-white">Missing Rate Limiter</span>
+                        </div>
+                        <p className="text-[11px] text-on-surface-variant leading-relaxed">Line 3: Implement exponential backoff rate limiting.</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+        </section>
 
-          {/* Metrics Pane */}
-          <div className="w-full md:w-1/3 p-6 pt-12 flex flex-col justify-center items-center bg-surface-container-lowest relative z-10">
-            <div className="mb-6 relative w-44 h-44 flex items-center justify-center">
-              <svg className="w-full h-full transform -rotate-90 drop-shadow-[0_0_15px_rgba(245,158,11,0.3)]" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" fill="none" r="45" stroke="rgba(255,255,255,0.05)" strokeWidth="4" />
-                <circle cx="50" cy="50" fill="none" r="45" stroke="url(#sg)" strokeDasharray="283" strokeDashoffset="37" strokeLinecap="round" strokeWidth="4" />
-                <defs>
-                  <linearGradient id="sg" x1="0%" x2="100%" y1="0%" y2="0%">
-                    <stop offset="0%" stopColor="#F59E0B" />
-                    <stop offset="100%" stopColor="#10B981" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div className="absolute flex flex-col items-center">
-                <span className="text-3xl font-bold text-on-surface text-glow">87<span className="text-xl text-on-surface-variant">%</span></span>
-                <span className="text-[11px] text-on-surface-variant uppercase tracking-widest mt-1">Score</span>
-              </div>
+        {/* ── Stats Row ── */}
+        <section className="border-y border-white/[0.06] bg-surface-container-lowest/50 py-16 mb-20">
+          <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-10">
+            <div className="text-center">
+              <div className="text-3xl font-extrabold text-primary mb-1" style={{ fontFamily: "'Geist', sans-serif" }} data-count="10000" data-suffix="+">0</div>
+              <div className="text-xs font-semibold tracking-[0.1em] uppercase text-on-surface-variant">Reviews Done</div>
             </div>
-            <div className="w-full space-y-3">
-              {[
-                { icon: 'account_tree', label: 'Complexity', value: 'Low (3)', color: 'text-success' },
-                { icon: 'bug_report', label: 'Issues', value: '3 Found', color: 'text-warning' },
-                { icon: 'security', label: 'Security', value: 'Failed (1)', color: 'text-critical' },
-              ].map(({ icon, label, value, color }) => (
-                <div key={label} className="flex justify-between items-center p-2 rounded bg-surface-variant/30 border border-outline-glass">
-                  <span className="text-on-surface-variant text-sm flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-base">{icon}</span>{label}
-                  </span>
-                  <span className={`${color} font-semibold text-sm`}>{value}</span>
-                </div>
-              ))}
+            <div className="text-center">
+              <div className="text-3xl font-extrabold text-secondary mb-1" style={{ fontFamily: "'Geist', sans-serif" }} data-count="99" data-suffix="%">0</div>
+              <div className="text-xs font-semibold tracking-[0.1em] uppercase text-on-surface-variant">Accuracy</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-extrabold text-primary mb-1" style={{ fontFamily: "'Geist', sans-serif" }} data-count="50" data-suffix="+">0</div>
+              <div className="text-xs font-semibold tracking-[0.1em] uppercase text-on-surface-variant">Languages</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-extrabold text-secondary mb-1" style={{ fontFamily: "'Geist', sans-serif" }}>{'<'}3s</div>
+              <div className="text-xs font-semibold tracking-[0.1em] uppercase text-on-surface-variant">Analysis Time</div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── Features Grid ── */}
-      <section className="max-w-7xl mx-auto px-6 mb-16">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold text-on-surface">Deep Analysis Engine</h2>
-          <p className="text-on-surface-variant text-lg mt-2">Beyond basic linting. Understand context, architecture, and intent.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {[
-            { icon: 'rule', color: 'text-primary', title: 'Static Analysis', desc: 'Instant detection of styling errors, unused variables, and complex antipatterns via integrated rulesets.', tags: [{ label: 'Critical', cls: 'bg-critical/10 text-critical border-critical/20' }, { label: 'Warning', cls: 'bg-warning/10 text-warning border-warning/20' }] },
-            { icon: 'psychology', color: 'text-secondary', title: 'AI-Powered Review', desc: 'Context-aware bug explanations and intelligent auto-refactoring suggestions that align with your codebase style.', tags: [] },
-            { icon: 'speed', color: 'text-tertiary', title: 'Complexity Metrics', desc: 'Track cyclomatic complexity, Lines of Code (LOC), and maintainability index before you merge.', tags: [] },
-            { icon: 'groups', color: 'text-success', title: 'Review History', desc: 'Share detailed findings securely. Track review resolution progress across your engineering organization.', tags: [] },
-          ].map(({ icon, color, title, desc, tags }) => (
-            <div key={title} className="glass-panel p-6 rounded-xl group cursor-default transition-transform hover:-translate-y-1 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className={`w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center mb-4 border border-outline-glass group-hover:border-current/30 transition-colors ${color}`}>
-                <span className="material-symbols-outlined text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+        {/* ── Features Grid ── */}
+        <section id="features" className="max-w-7xl mx-auto px-6 mb-24">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl font-extrabold mb-4 tracking-tight" style={{ fontFamily: "'Geist', sans-serif" }}>Engineered for Excellence</h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-primary-container to-secondary mx-auto rounded-full" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[
+              { icon: 'psychology', title: 'AI-Powered Analysis', desc: 'Deep semantic understanding of code logic powered by NVIDIA NIM large language models.', color: 'primary' },
+              { icon: 'terminal', title: 'Static Analysis Engine', desc: 'Multi-pass rule-based linting across 50+ languages. Catches edge cases before production.', color: 'secondary' },
+              { icon: 'bar_chart', title: 'Complexity Metrics', desc: 'Cyclomatic complexity scoring, cognitive load analysis, and maintainability hotspot detection.', color: 'primary' },
+              { icon: 'shield', title: 'Security Scanning', desc: 'Automated OWASP Top 10 vulnerability auditing for every line of code committed.', color: 'secondary' },
+              { icon: 'description', title: 'Instant Reports', desc: 'Beautifully formatted findings with fix suggestions, exportable as markdown or JSON.', color: 'primary' },
+              { icon: 'integration_instructions', title: 'GitHub Integration', desc: 'Native integration with GitHub, GitLab, and Bitbucket for automated PR reviews.', color: 'secondary' },
+            ].map((f, i) => (
+              <div key={i} className="scroll-animate glass-card p-6 rounded-xl group hover:border-white/20 transition-all duration-300 cursor-default">
+                <div className="shimmer-border h-0.5 w-full rounded-full mb-5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <span className={`material-symbols-outlined text-${f.color} text-4xl mb-4 block`} style={{ fontVariationSettings: "'FILL' 1" }}>{f.icon}</span>
+                <h3 className="text-lg font-bold text-white mb-2" style={{ fontFamily: "'Geist', sans-serif" }}>{f.title}</h3>
+                <p className="text-on-surface-variant text-sm leading-relaxed" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px' }}>{f.desc}</p>
               </div>
-              <h3 className="text-xl font-semibold text-on-surface mb-2">{title}</h3>
-              <p className="text-on-surface-variant text-sm leading-relaxed mb-4">{desc}</p>
-              {tags.length > 0 && (
-                <div className="flex gap-2 flex-wrap">
-                  {tags.map(t => (
-                    <span key={t.label} className={`text-[11px] font-bold uppercase px-2 py-1 rounded-full border ${t.cls}`}>{t.label}</span>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
 
-    </main>
+        {/* ── How It Works ── */}
+        <section id="how-it-works" className="max-w-7xl mx-auto px-6 py-20 mb-20">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-extrabold mb-3 tracking-tight" style={{ fontFamily: "'Geist', sans-serif" }}>Effortless Implementation</h2>
+            <p className="text-on-surface-variant text-sm" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Get started in under 3 minutes</p>
+          </div>
+          <div className="relative flex flex-col md:flex-row justify-between gap-12">
+            {[
+              { n: '1', title: 'Paste Your Code', desc: 'Upload files or paste code snippets directly into the Nexus editor.', bg: 'bg-primary-container', shadow: 'shadow-[0_0_20px_rgba(124,58,237,0.5)]' },
+              { n: '2', title: 'AI Analyzes', desc: 'Static linter and AI LLM run in parallel for comprehensive coverage.', bg: 'bg-secondary', shadow: 'shadow-[0_0_20px_rgba(34,211,238,0.5)]' },
+              { n: '3', title: 'Get Results', desc: 'Receive detailed findings with severity ratings and suggested fixes.', bg: 'bg-primary-container', shadow: 'shadow-[0_0_20px_rgba(124,58,237,0.5)]' },
+            ].map((s, i) => (
+              <div key={i} className="scroll-animate relative flex-1 text-center">
+                {i < 2 && <div className="hidden md:block step-line" />}
+                <div className={`w-12 h-12 ${s.bg} text-white font-bold rounded-full flex items-center justify-center mx-auto mb-5 relative z-10 ${s.shadow} text-lg`} style={{ fontFamily: "'Geist', sans-serif" }}>{s.n}</div>
+                <h4 className="text-lg font-bold text-white mb-2" style={{ fontFamily: "'Geist', sans-serif" }}>{s.title}</h4>
+                <p className="text-on-surface-variant text-sm px-4" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px' }}>{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Live Demo Section ── */}
+        <section id="demo" className="max-w-7xl mx-auto px-6 mb-24">
+          <div className="glass-card rounded-2xl overflow-hidden p-4 md:p-8 border border-white/[0.05]">
+            <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
+              <div>
+                <h2 className="text-3xl font-extrabold mb-1 tracking-tight" style={{ fontFamily: "'Geist', sans-serif" }}>Intelligence in Action</h2>
+                <p className="text-on-surface-variant text-sm" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Experience the surgical precision of Nexus AI suggestions.</p>
+              </div>
+              <div className="flex items-center gap-2 text-secondary bg-secondary/10 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase">
+                <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+                Live Feedback
+              </div>
+            </div>
+            {/* Split Demo */}
+            <div className="rounded-xl overflow-hidden bg-surface-container-lowest border border-white/[0.06]" style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}>
+              <div className="grid grid-cols-1 lg:grid-cols-2">
+                {/* Code Side */}
+                <div className="p-6 border-b lg:border-b-0 lg:border-r border-white/[0.06]">
+                  <div className="flex items-center gap-2 mb-4 text-xs text-outline">
+                    <span className="material-symbols-outlined text-sm">code</span>
+                    <span className="font-mono-code">payment_handler.js</span>
+                  </div>
+                  <div className="code-block space-y-0.5">
+                    <div><span className="text-outline mr-3 select-none"> 1</span><span className="code-keyword">async function</span> <span className="code-function">processPayment</span>(amount, card) {'{'}</div>
+                    <div><span className="text-outline mr-3 select-none"> 2</span>  <span className="code-keyword">const</span> charge = <span className="code-keyword">await</span> stripe.charges.create({'{'}</div>
+                    <div className="bg-warning/5 border-l-2 border-warning/50 pl-2 -ml-2 rounded-r"><span className="text-outline mr-3 select-none"> 3</span>    amount: amount,  <span className="code-comment">{'// Missing validation'}</span></div>
+                    <div><span className="text-outline mr-3 select-none"> 4</span>    currency: <span className="code-string">&apos;usd&apos;</span>,</div>
+                    <div className="bg-critical/5 border-l-2 border-critical/50 pl-2 -ml-2 rounded-r"><span className="text-outline mr-3 select-none"> 5</span>    source: card.number, <span className="code-comment">{'// PCI violation'}</span></div>
+                    <div><span className="text-outline mr-3 select-none"> 6</span>  {'}'});</div>
+                    <div><span className="text-outline mr-3 select-none"> 7</span>  console.log(<span className="code-string">&apos;Charged:&apos;</span>, charge.id);</div>
+                    <div><span className="text-outline mr-3 select-none"> 8</span>  <span className="code-keyword">return</span> charge;</div>
+                    <div><span className="text-outline mr-3 select-none"> 9</span>{'}'}</div>
+                  </div>
+                </div>
+                {/* Review Side */}
+                <div className="p-6 bg-surface/30">
+                  <div className="flex items-center justify-between mb-5">
+                    <span className="text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+                      Review Summary
+                    </span>
+                    <span className="text-xs text-on-surface-variant font-mono-code">3 findings</span>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="glass-card rounded-lg p-3.5 border-l-2 border-critical/60">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-critical/20 text-critical">CRITICAL</span>
+                        <span className="text-xs font-bold text-white">PCI Compliance Violation</span>
+                      </div>
+                      <p className="text-[11px] text-on-surface-variant leading-relaxed font-mono-code">Line 5: Raw card numbers must never be passed to charge APIs. Use Stripe tokens instead.</p>
+                    </div>
+                    <div className="glass-card rounded-lg p-3.5 border-l-2 border-warning/60">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-warning/20 text-warning">WARNING</span>
+                        <span className="text-xs font-bold text-white">No Input Validation</span>
+                      </div>
+                      <p className="text-[11px] text-on-surface-variant leading-relaxed font-mono-code">Line 3: Amount should be validated as a positive integer before processing.</p>
+                    </div>
+                    <div className="glass-card rounded-lg p-3.5 border-l-2 border-secondary/60">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-secondary/20 text-secondary">INFO</span>
+                        <span className="text-xs font-bold text-white">Add Error Handling</span>
+                      </div>
+                      <p className="text-[11px] text-on-surface-variant leading-relaxed font-mono-code">Wrap charge creation in try/catch for graceful failure handling.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── CTA Section ── */}
+        <section className="max-w-7xl mx-auto px-6 py-16">
+          <div className="relative rounded-3xl p-16 text-center border border-white/[0.08] overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(34,211,238,0.05) 100%)' }}>
+            <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-primary-container blur-[100px] opacity-20 rounded-full" />
+            <div className="absolute -top-32 -right-32 w-64 h-64 bg-secondary blur-[100px] opacity-10 rounded-full" />
+            <h2 className="text-4xl md:text-5xl font-extrabold mb-5 relative z-10 tracking-tight" style={{ fontFamily: "'Geist', sans-serif" }}>
+              Ready to Elevate Your Workflow?
+            </h2>
+            <p className="text-on-surface-variant text-lg max-w-xl mx-auto mb-8 relative z-10">
+              Join 500+ engineering teams already shipping code 4x faster with Nexus AI.
+            </p>
+            <Link href="/signup" className="relative z-10 inline-block bg-primary-container text-white px-10 py-4 rounded-xl font-bold primary-glow transition-all hover:scale-105 active:scale-95 text-sm tracking-wide">
+              Start Your Free Audit Now
+            </Link>
+          </div>
+        </section>
+
+        {/* ── Footer ── */}
+        <footer className="bg-surface-container-lowest w-full py-16 border-t border-outline-variant mt-16">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 px-6 max-w-7xl mx-auto">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-2 h-2 rounded-full bg-primary-container shadow-[0_0_6px_rgba(124,58,237,0.6)]" />
+                <span className="text-xl font-extrabold text-white" style={{ fontFamily: "'Geist', sans-serif" }}>Nexus AI</span>
+              </div>
+              <p className="text-on-surface-variant text-sm" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px' }}>Illuminating codebases with unparalleled intelligence.</p>
+            </div>
+            <div>
+              <h5 className="text-xs font-semibold tracking-[0.1em] uppercase text-primary mb-4">Product</h5>
+              <ul className="space-y-3 text-on-surface-variant text-sm">
+                <li><a className="hover:text-secondary transition-colors" href="#">Documentation</a></li>
+                <li><a className="hover:text-secondary transition-colors" href="#">Changelog</a></li>
+                <li><a className="hover:text-secondary transition-colors" href="#">Security</a></li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="text-xs font-semibold tracking-[0.1em] uppercase text-primary mb-4">Company</h5>
+              <ul className="space-y-3 text-on-surface-variant text-sm">
+                <li><a className="hover:text-secondary transition-colors" href="#">About</a></li>
+                <li><a className="hover:text-secondary transition-colors" href="#">Blog</a></li>
+                <li><a className="hover:text-secondary transition-colors" href="#">Careers</a></li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="text-xs font-semibold tracking-[0.1em] uppercase text-primary mb-4">Legal</h5>
+              <ul className="space-y-3 text-on-surface-variant text-sm">
+                <li><a className="hover:text-secondary transition-colors" href="#">Privacy Policy</a></li>
+                <li><a className="hover:text-secondary transition-colors" href="#">Terms of Service</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="max-w-7xl mx-auto px-6 mt-12 pt-6 border-t border-white/[0.05] text-center md:text-left text-on-surface-variant text-xs tracking-[0.1em] uppercase">
+            © 2026 Nexus AI. Illuminated by Intelligence.
+          </div>
+        </footer>
+      </main>
+    </>
   );
 }
