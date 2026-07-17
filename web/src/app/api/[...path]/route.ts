@@ -990,6 +990,9 @@ export async function GET(req: NextRequest, { params }: { params: { path: string
         complexity: metrics.cyclomatic_complexity || 1
       }
     });
+  }
+
+  return NextResponse.json({ error: 'Route not found' }, { status: 404 });
   } catch (err: any) {
     console.error('API GET route error:', err);
     return NextResponse.json({ error: err.message, stack: err.stack }, { status: 500 });
