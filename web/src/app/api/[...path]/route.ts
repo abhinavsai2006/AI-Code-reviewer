@@ -3,41 +3,273 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import https from 'https';
+import fs from 'fs';
+import path from 'path';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretnexuskey123';
 const NVIDIA_API_KEY = process.env.NVIDIA_API_KEY || '';
 const NVIDIA_BASE_URL = process.env.NVIDIA_BASE_URL || 'https://integrate.api.nvidia.com/v1';
 const NVIDIA_LLM_MODEL = process.env.NVIDIA_LLM_MODEL || 'meta/llama-3.1-8b-instruct';
+const DATABASE_URL = process.env.DATABASE_URL || '';
 
-// Simple in-memory fallback database for the Vercel serverless session
-const globalRef = global as any;
-if (!globalRef.memoryDb) {
-  globalRef.memoryDb = {
-    users: [
-      {
-        id: '00000000-0000-0000-0000-000000000000',
-        name: 'Nexus Developer',
-        email: 'dev@nexus.ai',
-        password_hash: '$2a$10$75HFtiz1K0ppmqnZiUij9O63UwPOt5xbA5BchRvV9w9y8RDlMshsG', // password is 'password'
-        created_at: new Date().toISOString()
-      }
-    ],
-    projects: [
-      {
-        id: '11111111-1111-1111-1111-111111111111',
-        user_id: '00000000-0000-0000-0000-000000000000',
+// Persistent local file fallback database
+const DATA_DIR = path.join(process.cwd(), '..', 'data');
+const USERS_FILE = path.join(DATA_DIR, 'users.json');
+const PROJECTS_FILE = path.join(DATA_DIR, 'projects.json');
+const SUBMISSIONS_FILE = path.join(DATA_DIR, 'submissions.json');
+const REVIEWS_FILE = path.join(DATA_DIR, 'reviews.json');
+const FINDINGS_FILE = path.join(DATA_DIR, 'findings.json');
+const METRICS_FILE = path.join(DATA_DIR, 'metrics.json');
+
+const ensureDirectoryExists = () => {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+};
+
+const readJsonFile = (filePath: string, defaultVal: any = []) => {
+  ensureDirectoryExists();
+  if (!fs.existsSync(filePath)) {
+    fs.writeFileSync(filePath, JSON.stringify(defaultVal, null, 2));
+    return defaultVal;
+  }
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(content || JSON.stringify(defaultVal));
+  } catch {
+    return defaultVal;
+  }
+};
+
+const writeJsonFile = (filePath: string, data: any) => {
+  ensureDirectoryExists();
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+  } catch (e) {
+    console.error('Error writing file:', filePath, e);
+  }
+};
+
+// PostgreSQL client pool initialization
+let pgPool: any = null;
+if (DATABASE_URL) {
+  try {
+    const { Pool } = require('pg');
+    pgPool = new Pool({
+      connectionString: DATABASE_URL,
+      ssl: { rejectUnauthorized: false }
+    });
+    console.log('PostgreSQL database connected.');
+  } catch (err) {
+    console.error('Failed to initialize PostgreSQL pool:', err);
+  }
+}
+
+// Global SQL database wrapper
+const db = {
+  query: async (text: string, params: any[] = []) => {
+    if (pgPool) {
+      return pgPool.query(text, params);
+    }
+    // Fallback Mock SQL Engine for Local JSON files
+    return mockSqlEngine(text, params);
+  }
+};
+
+// Mock SQL Engine mapping to local json files
+const mockSqlEngine = async (text: string, params: any[] = []) => {
+  const clean = text.replace(/\s+/g, ' ').trim().toLowerCase();
+
+  if (clean.includes('select * from users where email =')) {
+    const list = readJsonFile(USERS_FILE);
+    const rows = list.filter((u: any) => u.email === params[0].toLowerCase());
+    return { rows };
+  }
+
+  if (clean.includes('select id, name, email, avatar_url from users where id =') || clean.includes('select * from users where id =')) {
+    const list = readJsonFile(USERS_FILE);
+    const rows = list.filter((u: any) => u.id === params[0]);
+    return { rows };
+  }
+
+  if (clean.includes('insert into users')) {
+    const list = readJsonFile(USERS_FILE);
+    const newUser = {
+      id: crypto.randomUUID(),
+      name: params[0],
+      email: params[1].toLowerCase(),
+      password_hash: params[2],
+      created_at: new Date().toISOString()
+    };
+    list.push(newUser);
+    writeJsonFile(USERS_FILE, list);
+    return { rows: [newUser] };
+  }
+
+  if (clean.includes('select * from projects where user_id =')) {
+    const list = readJsonFile(PROJECTS_FILE);
+    let rows = list.filter((p: any) => p.user_id === params[0]);
+    if (rows.length === 0) {
+      const newProj = {
+        id: crypto.randomUUID(),
+        user_id: params[0],
         project_name: 'Nexus Sandbox',
         description: 'Default project sandbox for quick snippet analysis.',
         created_at: new Date().toISOString()
+      };
+      list.push(newProj);
+      writeJsonFile(PROJECTS_FILE, list);
+      rows = [newProj];
+    }
+    return { rows };
+  }
+
+  if (clean.includes('insert into projects')) {
+    const list = readJsonFile(PROJECTS_FILE);
+    const newProj = {
+      id: crypto.randomUUID(),
+      user_id: params[0],
+      project_name: params[1],
+      description: params[2] || '',
+      created_at: new Date().toISOString()
+    };
+    list.push(newProj);
+    writeJsonFile(PROJECTS_FILE, list);
+    return { rows: [newProj] };
+  }
+
+  if (clean.includes('insert into submissions')) {
+    const list = readJsonFile(SUBMISSIONS_FILE);
+    const newSub = {
+      id: crypto.randomUUID(),
+      project_id: params[0],
+      user_id: params[1],
+      source_type: params[2],
+      language: params[3],
+      file_name: params[4],
+      raw_code: params[5],
+      code_hash: params[6],
+      created_at: new Date().toISOString()
+    };
+    list.push(newSub);
+    writeJsonFile(SUBMISSIONS_FILE, list);
+    return { rows: [newSub] };
+  }
+
+  if (clean.includes('insert into reviews')) {
+    const list = readJsonFile(REVIEWS_FILE);
+    const newRev = {
+      id: crypto.randomUUID(),
+      submission_id: params[0],
+      project_id: params[1],
+      review_type: 'full',
+      status: params[2] || 'pending',
+      overall_score: null,
+      summary: null,
+      error_message: null,
+      created_at: new Date().toISOString()
+    };
+    list.push(newRev);
+    writeJsonFile(REVIEWS_FILE, list);
+    return { rows: [newRev] };
+  }
+
+  if (clean.includes('update reviews set')) {
+    const list = readJsonFile(REVIEWS_FILE);
+    const reviewId = params[params.length - 1];
+    const review = list.find((r: any) => r.id === reviewId);
+    if (review) {
+      if (clean.includes('status =')) {
+        const idx = text.toLowerCase().indexOf('status =');
+        const paramIdx = parseInt(text.slice(idx).match(/\$(\d+)/)![1]) - 1;
+        review.status = params[paramIdx];
       }
-    ],
-    submissions: [],
-    reviews: [],
-    findings: [],
-    metrics: []
-  };
-}
-const memoryDb = globalRef.memoryDb;
+      if (clean.includes('overall_score =')) {
+        const idx = text.toLowerCase().indexOf('overall_score =');
+        const paramIdx = parseInt(text.slice(idx).match(/\$(\d+)/)![1]) - 1;
+        review.overall_score = params[paramIdx];
+      }
+      if (clean.includes('summary =')) {
+        const idx = text.toLowerCase().indexOf('summary =');
+        const paramIdx = parseInt(text.slice(idx).match(/\$(\d+)/)![1]) - 1;
+        review.summary = params[paramIdx];
+      }
+      if (clean.includes('error_message =')) {
+        const idx = text.toLowerCase().indexOf('error_message =');
+        const paramIdx = parseInt(text.slice(idx).match(/\$(\d+)/)![1]) - 1;
+        review.error_message = params[paramIdx];
+      }
+      review.completed_at = new Date().toISOString();
+      writeJsonFile(REVIEWS_FILE, list);
+      return { rows: [review] };
+    }
+  }
+
+  if (clean.includes('select * from reviews where id =')) {
+    const list = readJsonFile(REVIEWS_FILE);
+    const rows = list.filter((r: any) => r.id === params[0]);
+    return { rows };
+  }
+
+  if (clean.includes('select * from submissions where id =')) {
+    const list = readJsonFile(SUBMISSIONS_FILE);
+    const rows = list.filter((s: any) => s.id === params[0]);
+    return { rows };
+  }
+
+  if (clean.includes('select * from review_findings where review_id =')) {
+    const list = readJsonFile(FINDINGS_FILE);
+    const rows = list.filter((f: any) => f.review_id === params[0]);
+    return { rows };
+  }
+
+  if (clean.includes('select * from complexity_metrics where review_id =')) {
+    const list = readJsonFile(METRICS_FILE);
+    const rows = list.filter((m: any) => m.review_id === params[0]);
+    return { rows };
+  }
+
+  if (clean.includes('select reviews.*') || clean.includes('select r.*')) {
+    const list = readJsonFile(REVIEWS_FILE);
+    const submissionsList = readJsonFile(SUBMISSIONS_FILE);
+    const findingsList = readJsonFile(FINDINGS_FILE);
+
+    const rows = list.map((r: any) => {
+      const s = submissionsList.find((sub: any) => sub.id === r.submission_id) || {};
+      const findings = findingsList.filter((f: any) => f.review_id === r.id);
+      return {
+        ...r,
+        id: r.id,
+        fileName: s.file_name || 'code_snippet',
+        language: s.language || 'TypeScript',
+        date: r.created_at.slice(0, 16).replace('T', ' '),
+        score: r.overall_score || 0,
+        critical: findings.filter((f: any) => f.severity === 'critical').length,
+        warning: findings.filter((f: any) => f.severity === 'warning').length,
+        info: findings.filter((f: any) => f.severity === 'info').length
+      };
+    });
+    return { rows };
+  }
+
+  if (clean.includes('delete from reviews where id =')) {
+    let list = readJsonFile(REVIEWS_FILE);
+    list = list.filter((r: any) => r.id !== params[0]);
+    writeJsonFile(REVIEWS_FILE, list);
+
+    let findingsList = readJsonFile(FINDINGS_FILE);
+    findingsList = findingsList.filter((f: any) => f.review_id !== params[0]);
+    writeJsonFile(FINDINGS_FILE, findingsList);
+
+    let metricsList = readJsonFile(METRICS_FILE);
+    metricsList = metricsList.filter((m: any) => m.review_id !== params[0]);
+    writeJsonFile(METRICS_FILE, metricsList);
+
+    return { rowCount: 1 };
+  }
+
+  return { rows: [] };
+};
 
 // --- Static Rules-based Analyzer ---
 const runStaticAnalysis = (code: string, language: string) => {
@@ -61,7 +293,6 @@ const runStaticAnalysis = (code: string, language: string) => {
     if (/select\b|insert\b|update\b|delete\b/i.test(trimmed)) {
       if (/\$\{.*\}/.test(trimmed) && !trimmed.includes('?')) {
         findings.push({
-          id: crypto.randomUUID(),
           source: 'static_analysis',
           severity: 'critical',
           category: 'security',
@@ -73,7 +304,6 @@ const runStaticAnalysis = (code: string, language: string) => {
         });
       } else if (/\+\s*[a-zA-Z0-9_]/.test(trimmed) || /[a-zA-Z0-9_]\s*\+/.test(trimmed)) {
         findings.push({
-          id: crypto.randomUUID(),
           source: 'static_analysis',
           severity: 'critical',
           category: 'security',
@@ -88,7 +318,6 @@ const runStaticAnalysis = (code: string, language: string) => {
 
     if (/api_key|secret|password|token/i.test(trimmed) && /=\s*['"`][a-zA-Z0-9_-]{8,}['"`]/.test(trimmed)) {
       findings.push({
-        id: crypto.randomUUID(),
         source: 'static_analysis',
         severity: 'critical',
         category: 'security',
@@ -107,7 +336,6 @@ const runStaticAnalysis = (code: string, language: string) => {
         const count = (code.match(new RegExp('\\b' + varName + '\\b', 'g')) || []).length;
         if (count === 1) {
           findings.push({
-            id: crypto.randomUUID(),
             source: 'static_analysis',
             severity: 'warning',
             category: 'code_smell',
@@ -123,7 +351,6 @@ const runStaticAnalysis = (code: string, language: string) => {
 
     if (trimmed.includes('console.log(')) {
       findings.push({
-        id: crypto.randomUUID(),
         source: 'static_analysis',
         severity: 'info',
         category: 'style',
@@ -227,7 +454,6 @@ Do not surround the JSON response with markdown code block formatting or tick ma
           const parsed = JSON.parse(body);
           if (parsed.choices && parsed.choices[0] && parsed.choices[0].message) {
             let contentStr = parsed.choices[0].message.content.trim();
-            // Repair markdown code block wrapping if LLM ignores instruction
             if (contentStr.startsWith('```json')) {
               contentStr = contentStr.substring(7);
             }
@@ -236,7 +462,6 @@ Do not surround the JSON response with markdown code block formatting or tick ma
             }
             contentStr = contentStr.trim();
             
-            // Basic JSON repair helper
             let fixedJson = contentStr;
             if (!fixedJson.endsWith('}') && fixedJson.includes('"findings"')) {
               fixedJson = fixedJson.trim();
@@ -331,42 +556,82 @@ const triggerReviewAnalysis = async (reviewId: string, submission: any) => {
       }
     }
 
-    // Map static findings
-    const staticFindings = staticRes.findings.map(f => ({
-      ...f,
-      review_id: reviewId,
-      file_name: submission.file_name,
-      created_at: new Date().toISOString()
-    }));
-
-    // Update database
-    const review = memoryDb.reviews.find((r: any) => r.id === reviewId);
-    if (review) {
-      review.status = 'completed';
-      review.overall_score = overallScore;
-      review.summary = NVIDIA_API_KEY 
-        ? 'Code review complete. Review suggestions highlight optimizations and security recommendations.'
-        : 'Static analysis run completed. Please set your NVIDIA_API_KEY for full AI code quality reviews.';
-      review.completed_at = new Date().toISOString();
-    }
-
     // Save findings and metrics
-    memoryDb.findings.push(...staticFindings, ...aiFindings);
-    memoryDb.metrics.push({
-      id: crypto.randomUUID(),
-      review_id: reviewId,
-      ...staticRes.metrics,
-      created_at: new Date().toISOString()
-    });
+    if (pgPool) {
+      // 1. Save static findings to Postgres
+      for (const f of staticRes.findings) {
+        await db.query(
+          `INSERT INTO review_findings (review_id, source, severity, category, issue, explanation, suggested_fix, file_name, line_number, column_number) 
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+          [reviewId, 'static_analysis', f.severity, f.category, f.issue, f.explanation, f.suggested_fix, submission.file_name, f.line_number, 1]
+        );
+      }
+      // 2. Save AI findings to Postgres
+      for (const f of aiFindings) {
+        await db.query(
+          `INSERT INTO review_findings (review_id, source, severity, category, issue, explanation, suggested_fix, file_name, line_number, column_number) 
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+          [reviewId, 'ai_review', f.severity, f.category, f.issue, f.explanation, f.suggested_fix, submission.file_name, f.line_number, 1]
+        );
+      }
+      // 3. Save complexity metrics to Postgres
+      await db.query(
+        `INSERT INTO complexity_metrics (review_id, cyclomatic_complexity, function_complexity, file_complexity, num_functions, num_classes, lines_of_code) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [reviewId, staticRes.metrics.cyclomatic_complexity, '{}', staticRes.metrics.file_complexity, staticRes.metrics.num_functions, staticRes.metrics.num_classes, staticRes.metrics.lines_of_code]
+      );
+      // 4. Update review status
+      await db.query(
+        `UPDATE reviews SET status = $1, overall_score = $2, summary = $3, completed_at = now() WHERE id = $4`,
+        ['completed', overallScore, NVIDIA_API_KEY ? 'Code review complete. AI and static metrics gathered.' : 'Static analysis complete. (NVIDIA API KEY missing)', reviewId]
+      );
+    } else {
+      // Local JSON File update
+      const reviewsList = readJsonFile(REVIEWS_FILE);
+      const rev = reviewsList.find((r: any) => r.id === reviewId);
+      if (rev) {
+        rev.status = 'completed';
+        rev.overall_score = overallScore;
+        rev.summary = 'Code review complete. Review suggestions highlight optimizations and security recommendations.';
+        rev.completed_at = new Date().toISOString();
+        writeJsonFile(REVIEWS_FILE, reviewsList);
+      }
+
+      const findingsList = readJsonFile(FINDINGS_FILE);
+      const staticFindings = staticRes.findings.map(f => ({
+        id: crypto.randomUUID(),
+        review_id: reviewId,
+        source: 'static_analysis',
+        severity: f.severity,
+        category: f.category,
+        issue: f.issue,
+        explanation: f.explanation,
+        suggested_fix: f.suggested_fix,
+        file_name: submission.file_name,
+        line_number: f.line_number,
+        column_number: 1,
+        created_at: new Date().toISOString()
+      }));
+      findingsList.push(...staticFindings, ...aiFindings);
+      writeJsonFile(FINDINGS_FILE, findingsList);
+
+      const metricsList = readJsonFile(METRICS_FILE);
+      metricsList.push({
+        id: crypto.randomUUID(),
+        review_id: reviewId,
+        ...staticRes.metrics,
+        created_at: new Date().toISOString()
+      });
+      writeJsonFile(METRICS_FILE, metricsList);
+    }
 
     updateStatus('completed');
   } catch (err: any) {
     console.error('Task execution failure:', err);
-    const review = memoryDb.reviews.find((r: any) => r.id === reviewId);
-    if (review) {
-      review.status = 'failed';
-      review.error_message = err.message || 'Worker pipeline error';
-    }
+    await db.query(
+      `UPDATE reviews SET status = $1, error_message = $2, completed_at = now() WHERE id = $3`,
+      ['failed', err.message || 'Worker pipeline error', reviewId]
+    );
     updateStatus('failed', { error: err.message });
   }
 };
@@ -380,21 +645,27 @@ export async function POST(req: NextRequest, { params }: { params: { path: strin
     if (!name || !email || !password) {
       return NextResponse.json({ error: 'Name, email, and password required.' }, { status: 400 });
     }
-    const checkUser = memoryDb.users.find((u: any) => u.email === email);
-    if (checkUser) {
+
+    const checkUser = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (checkUser.rows.length > 0) {
       return NextResponse.json({ error: 'Email already registered.' }, { status: 400 });
     }
+
     const passHash = bcrypt.hashSync(password, 10);
-    const newUser = {
-      id: crypto.randomUUID(),
-      name,
-      email,
-      password_hash: passHash,
-      created_at: new Date().toISOString()
-    };
-    memoryDb.users.push(newUser);
-    const token = jwt.sign({ id: newUser.id }, JWT_SECRET, { expiresIn: '7d' });
-    return NextResponse.json({ token, user: { id: newUser.id, name, email } }, { status: 201 });
+    const newUserResult = await db.query(
+      'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING *',
+      [name, email, passHash]
+    );
+    const user = newUserResult.rows[0];
+
+    // Seed a default project
+    await db.query(
+      'INSERT INTO projects (user_id, project_name, description) VALUES ($1, $2, $3)',
+      [user.id, 'Nexus Sandbox', 'Default workspace project context.']
+    );
+
+    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });
+    return NextResponse.json({ token, user: { id: user.id, name, email } }, { status: 201 });
   }
 
   // 2. LOGIN
@@ -403,10 +674,17 @@ export async function POST(req: NextRequest, { params }: { params: { path: strin
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password required.' }, { status: 400 });
     }
-    const user = memoryDb.users.find((u: any) => u.email === email);
-    if (!user || !bcrypt.compareSync(password, user.password_hash)) {
+
+    const checkUser = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (checkUser.rows.length === 0) {
       return NextResponse.json({ error: 'Invalid credentials.' }, { status: 401 });
     }
+
+    const user = checkUser.rows[0];
+    if (user.password_hash && !bcrypt.compareSync(password, user.password_hash)) {
+      return NextResponse.json({ error: 'Invalid credentials.' }, { status: 401 });
+    }
+
     const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });
     return NextResponse.json({ token, user: { id: user.id, name: user.name, email } }, { status: 200 });
   }
@@ -424,28 +702,37 @@ export async function POST(req: NextRequest, { params }: { params: { path: strin
       return NextResponse.json({ error: 'Language and raw_code are required.' }, { status: 400 });
     }
 
-    const submissionId = crypto.randomUUID();
-    const reviewId = crypto.randomUUID();
-    const submission = {
-      id: submissionId,
-      user_id: userId,
-      language,
-      raw_code,
-      file_name: fileName || 'code_file.txt',
-      created_at: new Date().toISOString()
-    };
+    // Fetch user's sandbox project
+    const projectRes = await db.query('SELECT id FROM projects WHERE user_id = $1 LIMIT 1', [userId]);
+    let projectId = projectRes.rows[0]?.id;
+    if (!projectId) {
+      const newProj = await db.query(
+        'INSERT INTO projects (user_id, project_name, description) VALUES ($1, $2, $3) RETURNING id',
+        [userId, 'Nexus Sandbox', 'Default workspace project context.']
+      );
+      projectId = newProj.rows[0].id;
+    }
 
-    memoryDb.submissions.push(submission);
-    memoryDb.reviews.push({
-      id: reviewId,
-      submission_id: submissionId,
-      status: 'pending',
-      overall_score: null,
-      summary: null,
-      created_at: new Date().toISOString()
-    });
+    const nameOfFile = fileName || 'code_file.txt';
+    const codeHash = crypto.createHash('sha256').update(raw_code).digest('hex');
+
+    // Create Submission record
+    const subRes = await db.query(
+      `INSERT INTO submissions (project_id, user_id, source_type, language, file_name, raw_code, code_hash) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
+      [projectId, userId, 'paste', language, nameOfFile, raw_code, codeHash]
+    );
+    const submissionId = subRes.rows[0].id;
+
+    // Create Review record (status = pending)
+    const revRes = await db.query(
+      `INSERT INTO reviews (submission_id, project_id, status) VALUES ($1, $2, $3) RETURNING id`,
+      [submissionId, projectId, 'pending']
+    );
+    const reviewId = revRes.rows[0].id;
 
     // Run review worker synchronously in the background context
+    const submission = { id: submissionId, user_id: userId, language, raw_code, file_name: nameOfFile };
     triggerReviewAnalysis(reviewId, submission);
 
     return NextResponse.json({ submission_id: submissionId, review_id: reviewId, status: 'pending' }, { status: 201 });
@@ -509,16 +796,20 @@ export async function GET(req: NextRequest, { params }: { params: { path: string
       const googleUser = JSON.parse(jsonPayload);
 
       // Find or create user
-      let user = memoryDb.users.find((u: any) => u.email === googleUser.email);
+      let checkUser = await db.query('SELECT * FROM users WHERE email = $1', [googleUser.email]);
+      let user = checkUser.rows[0];
       if (!user) {
-        user = {
-          id: crypto.randomUUID(),
-          name: googleUser.name || 'Google User',
-          email: googleUser.email,
-          password_hash: '', // OAuth user, no password
-          created_at: new Date().toISOString()
-        };
-        memoryDb.users.push(user);
+        const newUserResult = await db.query(
+          'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING *',
+          [googleUser.name || 'Google User', googleUser.email, '']
+        );
+        user = newUserResult.rows[0];
+        
+        // Seed project
+        await db.query(
+          'INSERT INTO projects (user_id, project_name, description) VALUES ($1, $2, $3)',
+          [user.id, 'Nexus Sandbox', 'Default workspace project context.']
+        );
       }
 
       // Generate JWT Token
@@ -551,7 +842,8 @@ export async function GET(req: NextRequest, { params }: { params: { path: string
   if (path === 'auth/me') {
     const userId = getUserIdFromRequest(req);
     if (!userId) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
-    const user = memoryDb.users.find((u: any) => u.id === userId);
+    const userRes = await db.query('SELECT id, name, email FROM users WHERE id = $1', [userId]);
+    const user = userRes.rows[0];
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
     return NextResponse.json({ id: user.id, name: user.name, email: user.email });
   }
@@ -597,32 +889,48 @@ export async function GET(req: NextRequest, { params }: { params: { path: string
 
   // 3. GET LIST REVIEWS
   if (path === 'reviews') {
-    const reviewsList = memoryDb.reviews.map((r: any) => {
-      const s = memoryDb.submissions.find((sub: any) => sub.id === r.submission_id) || {};
-      const findings = memoryDb.findings.filter((f: any) => f.review_id === r.id);
-      return {
+    const reviewsRes = await db.query(`
+      SELECT r.*, s.file_name, s.language 
+      FROM reviews r 
+      JOIN submissions s ON r.submission_id = s.id 
+      WHERE s.user_id = $1 
+      ORDER BY r.created_at DESC
+    `, [userId]);
+
+    const reviewsList = [];
+    for (const r of reviewsRes.rows) {
+      const findingsRes = await db.query('SELECT severity FROM review_findings WHERE review_id = $1', [r.id]);
+      const findings = findingsRes.rows;
+      reviewsList.push({
         id: r.id,
-        fileName: s.file_name || 'code_snippet',
-        language: s.language || 'TypeScript',
-        date: r.created_at.slice(0, 16).replace('T', ' '),
+        fileName: r.file_name || 'code_snippet',
+        language: r.language || 'TypeScript',
+        date: new Date(r.created_at).toISOString().slice(0, 16).replace('T', ' '),
         score: r.overall_score || 0,
         critical: findings.filter((f: any) => f.severity === 'critical').length,
         warning: findings.filter((f: any) => f.severity === 'warning').length,
         info: findings.filter((f: any) => f.severity === 'info').length
-      };
-    });
+      });
+    }
+
     return NextResponse.json(reviewsList);
   }
 
   // 4. GET REVIEW DETAILS
   if (path.startsWith('reviews/')) {
     const reviewId = path.split('/')[1];
-    const review = memoryDb.reviews.find((r: any) => r.id === reviewId);
+    const reviewRes = await db.query('SELECT * FROM reviews WHERE id = $1', [reviewId]);
+    const review = reviewRes.rows[0];
     if (!review) return NextResponse.json({ error: 'Review not found' }, { status: 404 });
 
-    const submission = memoryDb.submissions.find((s: any) => s.id === review.submission_id) || {};
-    const findings = memoryDb.findings.filter((f: any) => f.review_id === reviewId);
-    const metrics = memoryDb.metrics.find((m: any) => m.review_id === reviewId) || { loc: 0, complexity: 1 };
+    const subRes = await db.query('SELECT * FROM submissions WHERE id = $1', [review.submission_id]);
+    const submission = subRes.rows[0] || {};
+    
+    const findingsRes = await db.query('SELECT * FROM review_findings WHERE review_id = $1', [reviewId]);
+    const findings = findingsRes.rows;
+
+    const metricsRes = await db.query('SELECT * FROM complexity_metrics WHERE review_id = $1', [reviewId]);
+    const metrics = metricsRes.rows[0] || { loc: 0, complexity: 1 };
 
     const parsedCodeLines = (submission.raw_code || '').split('\n').map((content: string, idx: number) => {
       const lineNum = idx + 1;
@@ -639,7 +947,10 @@ export async function GET(req: NextRequest, { params }: { params: { path: string
       review,
       findings,
       code: parsedCodeLines,
-      metrics
+      metrics: {
+        loc: metrics.lines_of_code || parsedCodeLines.length,
+        complexity: metrics.cyclomatic_complexity || 1
+      }
     });
   }
 
@@ -653,9 +964,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { path: str
 
   if (path.startsWith('reviews/')) {
     const reviewId = path.split('/')[1];
-    memoryDb.reviews = memoryDb.reviews.filter((r: any) => r.id !== reviewId);
-    memoryDb.findings = memoryDb.findings.filter((f: any) => f.review_id !== reviewId);
-    memoryDb.metrics = memoryDb.metrics.filter((m: any) => m.review_id !== reviewId);
+    await db.query('DELETE FROM reviews WHERE id = $1', [reviewId]);
     return NextResponse.json({ success: true });
   }
 
