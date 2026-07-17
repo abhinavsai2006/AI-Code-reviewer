@@ -112,22 +112,28 @@ export default function SubmitCodePage() {
         eventSource.onerror = () => {
           eventSource.close();
           // Polling fallback
-          const interval = setInterval(async () => {
-            try {
-              const res = await fetch(`/api/reviews/${reviewId}`, { headers: getHeaders() });
-              const d = await res.json();
-              if (res.ok && d.review) {
-                if (d.review.status === 'completed') {
-                  clearInterval(interval);
-                  setLoading(false);
-                  router.push(`/dashboard/reviews/${reviewId}`);
-                } else if (d.review.status === 'failed') {
-                  clearInterval(interval);
-                  setLoading(false);
-                  alert(`Review failed: ${d.review.error_message || 'Internal pipeline error'}`);
+          const interval = setInterval(() => {
+            const checkStatus = async () => {
+              try {
+                const res = await fetch(`/api/reviews/${reviewId}`, { headers: getHeaders() });
+                const d = await res.json();
+                if (res.ok && d.review) {
+                  if (d.review.status === 'completed') {
+                    clearInterval(interval);
+                    setLoading(false);
+                    router.push(`/dashboard/reviews/${reviewId}`);
+                  } else if (d.review.status === 'failed') {
+                    clearInterval(interval);
+                    setLoading(false);
+                    alert(`Review failed: ${d.review.error_message || 'Internal pipeline error'}`);
+                  }
                 }
+              } catch {
+                clearInterval(interval);
+                setLoading(false);
               }
-            } catch { clearInterval(interval); setLoading(false); }
+            };
+            checkStatus();
           }, 1500);
         };
       } else {
