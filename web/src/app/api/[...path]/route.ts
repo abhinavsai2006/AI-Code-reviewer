@@ -982,7 +982,11 @@ export async function GET(req: NextRequest, { params }: { params: { path: string
     });
 
     return NextResponse.json({
-      review,
+      review: {
+        ...review,
+        fileName: submission.file_name,
+        language: submission.language
+      },
       findings,
       code: parsedCodeLines,
       metrics: {

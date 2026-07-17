@@ -38,8 +38,17 @@ export default function ReviewDetailPage() {
   const [selectedLine, setSelectedLine] = useState<number | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [expandedFinding, setExpandedFinding] = useState<string | null>(null);
+  const [shareCopied, setShareCopied] = useState(false);
 
   const getHeaders = () => ({ 'Authorization': `Bearer ${localStorage.getItem('token')}` });
+
+  const handleShare = () => {
+    if (typeof window !== 'undefined') {
+      navigator.clipboard.writeText(window.location.href);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -117,8 +126,9 @@ export default function ReviewDetailPage() {
             className="border border-outline-glass px-3 py-1.5 rounded-lg text-on-surface hover:bg-white/5 transition-colors flex items-center gap-1.5 text-sm">
             <span className="material-symbols-outlined text-[16px]">add</span> New Review
           </button>
-          <button className="bg-primary-container text-white px-3 py-1.5 rounded-lg font-medium hover:bg-inverse-primary transition-colors shadow-[0_0_15px_rgba(124,58,237,0.3)] flex items-center gap-1.5 text-sm">
-            <span className="material-symbols-outlined text-[16px]">share</span> Share Report
+          <button onClick={handleShare}
+            className="bg-primary-container text-white px-3 py-1.5 rounded-lg font-medium hover:bg-inverse-primary transition-colors shadow-[0_0_15px_rgba(124,58,237,0.3)] flex items-center gap-1.5 text-sm">
+            <span className="material-symbols-outlined text-[16px]">{shareCopied ? 'check' : 'share'}</span> {shareCopied ? 'Link Copied!' : 'Share Report'}
           </button>
         </div>
       </header>
